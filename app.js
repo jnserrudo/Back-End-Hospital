@@ -5,8 +5,9 @@ import { router } from './src/routes/main.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path'; // Importa el módulo 'path'
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const filename = fileURLToPath(import.meta.url);
+const dirnamex = dirname(filename);
+console.log("filename: ",filename,"dirnamex:",dirnamex)
 // Configuración de la aplicación
 const app = express();
 app.disable('x-powered-by');
@@ -36,10 +37,10 @@ app.use(cors({
 
 //Como hostear react directo desde express? Asi --> 
 //Primero le decimos a express que use todos los archivos del build de react asi:
-app.use(express.static(__dirname + "../Front-End/Front-End-Hospital/dist"));
+app.use(express.static(dirnamex + "../Front-End/Front-End-Hospital/dist"));
 //Luego le decimos a express que sirva todo eso desde el home
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Front-End/Front-End-Hospital/dist", "index.html"))
+    res.sendFile(path.join(dirnamex, "../Front-End/Front-End-Hospital/dist", "index.html"))
 });
 
 
