@@ -32,10 +32,10 @@ app.use(cors({
 
 //Como hostear react directo desde express? Asi --> 
 //Primero le decimos a express que use todos los archivos del build de react asi:
-app.use(express.static(__dirname + "../Front-End/Front-End-Hospital/build"));
+app.use(express.static(__dirname + "../Front-End/Front-End-Hospital/dist"));
 //Luego le decimos a express que sirva todo eso desde el home
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Front-End/Front-End-Hospital/build", "index.html"))
+    res.sendFile(path.join(__dirname, "../Front-End/Front-End-Hospital/dist", "index.html"))
 });
 
 
