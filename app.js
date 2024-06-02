@@ -19,7 +19,7 @@ const ACCEPTED_ORIGINS = [
 
 // Configuración del middleware CORS
 app.use(cors({
-    origin: (origin, callback) => {
+    origin: '*'/* (origin, callback) => {
         // Permite solicitudes sin origen (por ejemplo, aplicaciones móviles)
         if (!origin) return callback(null, true);
         if (ACCEPTED_ORIGINS.indexOf(origin) !== -1) {
@@ -27,7 +27,7 @@ app.use(cors({
         } else {
             return callback(new Error('No permitido por CORS'));
         }
-    }
+    } */
 }));
 
 // Middleware para analizar JSON
