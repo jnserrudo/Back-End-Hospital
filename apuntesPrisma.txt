@@ -1,0 +1,38 @@
+Vamos a trabajar el proyecto con prisma
+
+Tenemos a:
+ Prisma Client: es un modulo de js o ts que  nos permitira generar archivos de configuracion
+ Prisma Migrate: que es una herramienta de consola que leera nuestros esquemas y en la forma en la que nosotros hemos detallado
+ como crear tablas y creara los archivos de migraciones, esto es cuando querramos desplegar en un entorno de produccion
+ Prisma Studio: es una interfaz grafica para ver y editar nuestra BD
+
+
+
+Instalamos prisma ahora como una dependencia de desarrollo
+
+npm i prisma -D
+
+-Luego lo inicializamos con npx prisma init
+este comando lo que hara sera crear una carpeta prisma, con un archivo especial llamado schema.prisma
+Nos comentara que debemos establecer una ruta para la base de datos, un enlace de conexion
+
+El archivo schema.prisma es un archivo de configuracion con una sintaxis especial
+
+para probar usamos sqlite, que es una bd que funciona en un archivo
+
+Una vez que definamos nuestro esquema, podemos migrarla
+esto se realizara con el comando -> npx prisma migrate
+esto lo que hara es convertirlo a codigo de js y tambien generara las tablas en las base de datos y nos creara una configuracion
+
+en la documentacion lo hace en desarrollo, de esta manera:
+
+npx prisma migrate dev --name init
+ 
+Este comando hizo tres cosas:
+
+-Creó un nuevo archivo de migración SQL para esta migración en el prisma/migrations directorio.
+Ejecutó el archivo de migración SQL contra la base de datos.
+Corrió prisma generate debajo del capó (que instaló el @prisma/client empaque y genere una API de 
+cliente Prisma personalizada basada en sus modelos).
+
+si quiero ir haciendo mas modificaciones, simplemente se modifica el esquema y luego se realizan mas migraciones

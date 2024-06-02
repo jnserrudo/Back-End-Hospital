@@ -1,0 +1,42 @@
+En Nodejs tenemos dos formas para trabajar con las dependencias.
+tenemos commonJS y la de ECMASCRIPT MODULES
+
+--------
+Sistema de Modulos de Nodejs
+
+commonJS:
+    clasico
+    require
+    module.exports
+
+
+ESModules
+    moderno y recomendado
+    import/export  
+
+Lo que se hace en esta clase (4), poder migrar del sistema de modulos viejo al nuevo (commonJS => ECMASCRIPT)
+
+Lo primero que vamos a hacer es ir al package.json
+le agregamos el tipo de proyecto
+
+"type":"commonjs", // este es el por defecto, pero no aparece, no hace falta ponerlo porque es el por defecto
+
+para que todos nuestros ficheros se compartan como ECMASCRIPT modules sin necesidad de cambiar las extensiones ni nada raro
+tenemos que poner lo siguiente => "type":"module"
+se puede pasar de uno al otro casi sin problemas haciendo ctrl+.(punto) en los require
+una vez que hacemos este cambio ya no me dejara usar require y debemos usar los import  
+OTRO de los problemas que se pueden presentar debido a que en commonJS las extensiones no son obligatorias, en ECMASCRIPT se DEBEN poner las extensiones
+
+MVC (MODELO VISTA CONTROLADOR)
+ES UN PATRON DE ARQUITECTURA QUE SE UTILIZA EN LAS APLICACIONES, ESTA ARQ TE PROPORCIONA UNA ESTRUCTURA
+QUE TE OBLIGA A SEPARAR TU APLICACION EN 3 COMPONENTES INTERCONECTADOS ESCENCIALES QUE SEPARAN
+LAS PREOCUPACIONES DE TU APLICACION  Y SON ESTOS 3 COMPONENTES LOS QUE LE DAN EL NOMBRE A ESTA ARQUITECTURA
+
+EL MODELO REPRESENTA LA LOGICA DEL NEGOCIO DE FORMA INTERNA => ACCEDER A LA BD, ACTUALIZAR INFO , VER INTEGRIDAD DE LOS DATOS
+
+EL CONTROLADOR, EL INTERMEDIARIO ENTRE EL MODELO Y LA VISTA , QUE ES EL QUE ESTA RESPONDIENDO A LAS ENTRADAS
+DEL USUARIO 
+
+LA VISTA = > PODEMOS ENVIAR LA ACCIONES QUE QUEREMOS HACER , ASI QUE SERIA LA INTERFAZ DEL USUARIO
+
+NUNCA LA VISTA VA A TENER ACCESO DE MANERA DIRECTA CON EL MODELO, SIMPRE TIENEN ESTE TIPO DE CONEXION CON EL CONTROLADOR ANTES 

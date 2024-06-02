@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Paciente{
+  nombre String
+  apellido String
+  dni Int @id 
+  domicilio String
+  obraSocial String
+  plan String
+  nroAfiliado Int
+  celular Int
+  vacunas String?
+  app String?
+  afp String?
+  alergias String?
+  consultas Consulta[]
+
+}
+//fijarme si puedo usar algunos enums, como el tipo en la consulta o su motivo
+
+model Consulta{
+  id Int @id @default(autoincrement())
+  fecha DateTime
+  motivo String
+  diagnostico String?
+  evolucion String
+  tipo String
+  tratamiento String
+  pacienteDni Int
+  paciente Paciente @relation( fields:[pacienteDni],references:[dni] )
+  createdAt DateTime @default(now()) // esto es simplemente es un agregado para esta consulta, pero deberia coincidir con el valor del campo fecha
+
+}
