@@ -4,7 +4,7 @@ import cors from 'cors';
 import { router } from './src/routes/main.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
+import path from 'path'; // Importa el módulo 'path'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 // Configuración de la aplicación
