@@ -1,46 +1,104 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model Paciente{
-  nombre String
-  apellido String
-  dni Int @id 
-  domicilio String
-  obraSocial String
-  plan String
-  nroAfiliado Int
-  celular Int
-  vacunas String?
-  app String?
-  afp String?
-  alergias String?
-  consultas Consulta[]
-
+// Definición del modelo de Roles
+model Rol {
+  id      Int       @id @default(autoincrement())
+  rol     String
+  usuario Usuario[]
 }
-//fijarme si puedo usar algunos enums, como el tipo en la consulta o su motivo
 
-model Consulta{
-  id Int @id @default(autoincrement())
-  fecha DateTime
-  motivo String
-  diagnostico String?
-  evolucion String
-  tipo String
-  tratamiento String
-  pacienteDni Int
-  paciente Paciente @relation( fields:[pacienteDni],references:[dni] )
-  createdAt DateTime @default(now()) // esto es simplemente es un agregado para esta consulta, pero deberia coincidir con el valor del campo fecha
+// Definición del modelo de Usuarios
+model Usuario {
+  id       Int    @id @default(autoincrement())
+  nombre   String
+  password String // Aquí almacenamos la contraseña, que debería ser encriptada en el backend
+  rol      Rol?   @relation(fields: [idRol], references: [id]) // Relación uno a uno: un usuario está asociado con un solo rol
+  idRol    Int?
+}
 
+// Definición del modelo de Recetas
+model Receta {
+  id           Int               @id @default(autoincrement())
+  nombre       String
+  porciones    String
+  calorias     String
+  tiempo       String
+  urlFoto      String
+  ingredientes String
+  preparacion  String
+  patologia    PatologiaReceta[]
+}
+
+// Definición del modelo de Pacientes
+model Paciente {
+  id        Int                 @id @default(autoincrement())
+  nombre    String
+  apellido  String
+  patologia PatologiaPaciente[]
+}
+
+// Definición del modelo de Patologias
+model Patologia {
+  id          Int                    @id @default(autoincrement())
+  nombre      String
+  descripcion String
+  paciente    PatologiaPaciente[]
+  recetas     PatologiaReceta[]
+  informacion PatologiaInformacion[]
+  ejercicio   PatologiaEjercicio[]
+}
+
+model Ejercicio {
+  id          Int                  @id @default(autoincrement())
+  nombre      String
+  descripcion String
+  patologia   PatologiaEjercicio[]
+}
+
+// Definición de la entidad de unión PatologiaPaciente
+model PatologiaPaciente {
+  id          Int       @id @default(autoincrement())
+  paciente    Paciente  @relation(fields: [pacienteId], references: [id])
+  pacienteId  Int
+  patologia   Patologia @relation(fields: [patologiaId], references: [id])
+  patologiaId Int
+}
+
+model PatologiaReceta {
+  id          Int       @id @default(autoincrement())
+  receta      Receta    @relation(fields: [recetaId], references: [id])
+  recetaId    Int
+  patologia   Patologia @relation(fields: [patologiaId], references: [id])
+  patologiaId Int
+}
+
+model PatologiaInformacion {
+  id            Int         @id @default(autoincrement())
+  informacion   Informacion @relation(fields: [informacionId], references: [id])
+  informacionId Int
+  patologia     Patologia   @relation(fields: [patologiaId], references: [id])
+  patologiaId   Int
+}
+
+model PatologiaEjercicio {
+  id          Int       @id @default(autoincrement())
+  ejercicio   Ejercicio @relation(fields: [ejercicioId], references: [id])
+  ejercicioId Int
+  patologia   Patologia @relation(fields: [patologiaId], references: [id])
+  patologiaId Int
+}
+
+// Definición del modelo de Informacion
+model Informacion {
+  id        Int                    @id @default(autoincrement())
+  nombre    String
+  url       String
+  patologia PatologiaInformacion[]
 }

@@ -22,6 +22,10 @@ const ACCEPTED_ORIGINS = [
     'http://jnsix.com'
 ];
 
+import { PrismaClient } from "@prisma/client";
+
+const prisma =new PrismaClient()
+
 // Configuración del middleware CORS
 app.use(cors({
     origin: '*'/* (origin, callback) => {
@@ -39,9 +43,14 @@ app.use(cors({
 //Primero le decimos a express que use todos los archivos del build de react asi:
 const staticPath = path.join(dirnamex, '../Front-End-Hospital/Front-End-Hospital/dist');
 console.log("Static Path: ", staticPath);
-app.use(express.static(staticPath));
+
+
+//app.use(express.static(staticPath));
+
+
 //Luego le decimos a express que sirva todo eso desde el home
-app.get("*", (req, res) => {
+
+const front=(req, res) => {
     const indexPath = path.join(staticPath, "index.html");
     console.log("Serving index.html from: ", indexPath);
     res.sendFile(indexPath, (err) => {
@@ -50,7 +59,9 @@ app.get("*", (req, res) => {
         res.status(500).send(err);
       }
     });
-  });
+  }
+
+//app.get("*", front);
   
   
 
@@ -58,8 +69,20 @@ app.get("*", (req, res) => {
 // Middleware para analizar JSON
 app.use(json());
 
+/* 
+app.use('/', async()=> {
+    try {
+        await prisma.$connect();
+        console.log('Conexión exitosa a la base de datos');
+      } catch (error) {
+        console.error('Error al conectar con la base de datos:', error);
+      } finally {
+        await prisma.$disconnect();
+      }
+} ); */
 // Rutas de la aplicación
-app.use('/api', ()=>console.log("dea")/* router */);
+
+app.use('/api', router);
 
 // Manejo de errores CORS
 app.use((err, req, res, next) => {

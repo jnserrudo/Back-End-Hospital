@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma =new PrismaClient()
-export class PacienteModel{
+export class InformacionModel{
 
     static getAll=async()=>{
         try {
-            const pacientes=await prisma.paciente.findMany()
+            const informacion=await prisma.informacion.findMany()
             /* console.log(data)
-            const pacientes=await data.json()
+            const informacions=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
-             */return pacientes    
+             */return informacion  
         } catch (error) {
             return {
                 err:error
@@ -19,15 +19,15 @@ export class PacienteModel{
         
     }
 
-    static getPacientebyDni=async(dni)=>{
+    static getInformacionbyId=async(id)=>{
         try {
-            dni=+dni
-            const paciente=await prisma.paciente.findFirst({
+            id=+id
+            const informacion=await prisma.informacion.findFirst({
                 where:{
-                    dni:dni
+                    id:id
                 }
             }) 
-            return paciente    
+            return informacion    
         } catch (error) {
             return {
                 err:error
@@ -37,15 +37,15 @@ export class PacienteModel{
         
     }
 
-    static updatePaciente=async(dni,pacienteUpdated)=>{
+    static updateInformacion=async(dni,informacionUpdated)=>{
         try {
-            const paciente=await prisma.paciente.update({
+            const informacion=await prisma.informacion.update({
                 where:{
                     dni:+dni
                 },
-                data:pacienteUpdated
+                data:informacionUpdated
             }) 
-            return paciente    
+            return informacion    
         } catch (error) {
             return {
                 err:error
@@ -54,13 +54,13 @@ export class PacienteModel{
         
     }
 
-    static addPaciente=async(dataPaciente)=>{
+    static addInformacion=async(dataInformacion)=>{
         try {
-            const newPaciente=await prisma.paciente.create({
-                data:dataPaciente
+            const newInformacion=await prisma.informacion.create({
+                data:dataInformacion
             })
             
-            return newPaciente    
+            return newInformacion    
         } catch (error) {
             return {
                 err:error

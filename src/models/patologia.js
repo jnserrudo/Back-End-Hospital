@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma =new PrismaClient()
-export class PacienteModel{
+export class PatologiaModel{
 
     static getAll=async()=>{
         try {
-            const pacientes=await prisma.paciente.findMany()
+            const patologias=await prisma.patologia.findMany()
             /* console.log(data)
-            const pacientes=await data.json()
+            const patologias=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
-             */return pacientes    
+             */return patologias    
         } catch (error) {
             return {
                 err:error
@@ -19,15 +19,15 @@ export class PacienteModel{
         
     }
 
-    static getPacientebyDni=async(dni)=>{
+    static getPatologiabyId=async(id)=>{
         try {
-            dni=+dni
-            const paciente=await prisma.paciente.findFirst({
+            id=+id
+            const patologia=await prisma.patologia.findFirst({
                 where:{
-                    dni:dni
+                    id:id
                 }
             }) 
-            return paciente    
+            return patologia    
         } catch (error) {
             return {
                 err:error
@@ -37,15 +37,15 @@ export class PacienteModel{
         
     }
 
-    static updatePaciente=async(dni,pacienteUpdated)=>{
+    static updatePatologia=async(dni,patologiaUpdated)=>{
         try {
-            const paciente=await prisma.paciente.update({
+            const patologia=await prisma.patologia.update({
                 where:{
                     dni:+dni
                 },
-                data:pacienteUpdated
+                data:patologiaUpdated
             }) 
-            return paciente    
+            return patologia    
         } catch (error) {
             return {
                 err:error
@@ -54,13 +54,13 @@ export class PacienteModel{
         
     }
 
-    static addPaciente=async(dataPaciente)=>{
+    static addPatologia=async(dataPatologia)=>{
         try {
-            const newPaciente=await prisma.paciente.create({
-                data:dataPaciente
+            const newPatologia=await prisma.patologia.create({
+                data:dataPatologia
             })
             
-            return newPaciente    
+            return newPatologia    
         } catch (error) {
             return {
                 err:error
