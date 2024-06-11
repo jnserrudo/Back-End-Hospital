@@ -37,11 +37,11 @@ export class PatologiaModel{
         
     }
 
-    static updatePatologia=async(dni,patologiaUpdated)=>{
+    static updatePatologia=async(id,patologiaUpdated)=>{
         try {
             const patologia=await prisma.patologia.update({
                 where:{
-                    dni:+dni
+                    id:+id
                 },
                 data:patologiaUpdated
             }) 

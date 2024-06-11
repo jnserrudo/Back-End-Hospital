@@ -12,7 +12,7 @@ export class PatologiaController{
 
     static getPatologiabyId=async(req,res)=>{
         let id=req.params.id
-        const patologia=await PatologiaModel.getPatologiabyDni(id)
+        const patologia=await PatologiaModel.getPatologiabyId(id)
         if(!patologia?.err){
             res.json(patologia)
         }else{
@@ -21,8 +21,8 @@ export class PatologiaController{
     }
 
     static updatePatologia=async(req,res)=>{
-        let dni=req.params.dni
-        const patologia=await PatologiaModel.updatePatologia(dni,req.body)
+        let id=req.params.id
+        const patologia=await PatologiaModel.updatePatologia(id,req.body)
         if(!patologia?.err){
             res.json(patologia)
         }else{
