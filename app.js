@@ -61,28 +61,34 @@ const front=(req, res) => {
     });
   }
 
-app.get("/", front);
   
   
-
-
-// Middleware para analizar JSON
-app.use(json());
-
-/* 
-app.use('/', async()=> {
+  
+  
+  // Middleware para analizar JSON
+  app.use(json());
+  
+  /* 
+  app.use('/', async()=> {
     try {
-        await prisma.$connect();
-        console.log('Conexión exitosa a la base de datos');
+      await prisma.$connect();
+      console.log('Conexión exitosa a la base de datos');
       } catch (error) {
         console.error('Error al conectar con la base de datos:', error);
-      } finally {
-        await prisma.$disconnect();
-      }
-} ); */
-// Rutas de la aplicación
+        } finally {
+          await prisma.$disconnect();
+          }
+          } ); */
+          // Rutas de la aplicación
+          
 
+
+
+          
 app.use('/api', router);
+
+
+app.get("/", front);
 
 // Manejo de errores CORS
 app.use((err, req, res, next) => {
