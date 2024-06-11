@@ -5,6 +5,7 @@ export class UsuarioController{
         console.log('usuario router')
 
         const usuarios=await UsuarioModel.getAll()
+        console.log("resultado de usuarios del controller: ", usuarios)
         if(!usuarios?.err){
             res.json(usuarios)
         }else{
