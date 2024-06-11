@@ -45,7 +45,7 @@ const staticPath = path.join(dirnamex, '../Front-End-Hospital/Front-End-Hospital
 console.log("Static Path: ", staticPath);
 
 
-//app.use(express.static(staticPath));
+app.use(express.static(staticPath));
 
 
 //Luego le decimos a express que sirva todo eso desde el home
@@ -61,7 +61,7 @@ const front=(req, res) => {
     });
   }
 
-//app.get("*", front);
+app.get("*", front);
   
   
 
