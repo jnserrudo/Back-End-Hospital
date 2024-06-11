@@ -8,7 +8,9 @@ export class UsuarioController{
         if(!usuarios?.err){
             res.json(usuarios)
         }else{
-            res.json({message:"No se pudo traer los Usuarios"}).status(404)
+            res.json({message:"No se pudo traer los Usuarios",
+                        error:usuarios?.err
+            }).status(404)
 
         }
     }
