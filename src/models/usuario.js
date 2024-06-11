@@ -7,7 +7,7 @@ export class UsuarioModel{
         try {
             console.log("model usuario")
             const usuarios=await prisma.usuario.findMany()
-            console.log(usuarios)
+            console.log("resultado de usuario en el modelo: ", usuarios)
         /* console.log(data)
         const usuarios=await data.json()
         NO ES NECESARIO CONVERTIR A JSON
