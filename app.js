@@ -61,7 +61,7 @@ const front=(req, res) => {
     });
   }
 
-app.get("*", front);
+app.get("/", front);
   
   
 
