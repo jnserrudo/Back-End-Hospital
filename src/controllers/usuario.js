@@ -15,7 +15,21 @@ export class UsuarioController{
 
         }
     }
+    static getRolByUser=async(req,res)=>{
+        console.log('usuario router')
+        const {user}= req.params
+        const usuarios=await UsuarioModel.getRolByUser(user)
+        console.log("resultado de usuarios del controller: ", usuarios)
+        if(!usuarios?.err){
+            res.json(usuarios)
+        }else{
+            res.json({message:"No se pudo traer los Usuarios",
+                        error:usuarios?.err
+            }).status(404)
 
+        }
+    }
+    
     static getUsuariobyId=async(req,res)=>{
         let id=req.params.id
         const usuario=await UsuarioModel.getUsuariobyId(id)
@@ -42,6 +56,18 @@ export class UsuarioController{
             res.json(newUsuario)
         }else{
             res.json({message:"No se pudo insertar el Usuario"}).status(404)
+
+        }
+    }
+
+    static getJwtToken=async(req,res)=>{
+        const {user,password}=req.body
+        const jwtToken=await UsuarioModel.getJwtToken(user,password)
+        if(!jwtToken?.err){
+            console.log(jwtToken)
+            res.json(jwtToken)
+        }else{
+            res.json({error:"No se pudo obtener el jwt token"}).status(404)
 
         }
     }
