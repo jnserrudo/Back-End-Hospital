@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma =new PrismaClient()
-export class InformacionModel{
+export class EjercicioModel{
 
     static getAll=async()=>{
         try {
-            const informacion=await prisma.informacion.findMany()
+            const ejercicio=await prisma.ejercicio.findMany()
             /* console.log(data)
-            const informacions=await data.json()
+            const ejercicios=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
-             */return informacion  
+             */return ejercicio  
         } catch (error) {
             return {
                 err:error
@@ -19,15 +19,15 @@ export class InformacionModel{
         
     }
 
-    static getInformacionbyId=async(id)=>{
+    static getEjerciciobyId=async(id)=>{
         try {
             id=+id
-            const informacion=await prisma.informacion.findFirst({
+            const ejercicio=await prisma.ejercicio.findFirst({
                 where:{
                     id:id
                 }
             }) 
-            return informacion    
+            return ejercicio    
         } catch (error) {
             return {
                 err:error
@@ -37,15 +37,15 @@ export class InformacionModel{
         
     }
 
-    static updateInformacion=async(id,informacionUpdated)=>{
+    static updateEjercicio=async(id,ejercicioUpdated)=>{
         try {
-            const informacion=await prisma.informacion.update({
+            const ejercicio=await prisma.ejercicio.update({
                 where:{
                     id:+id
                 },
-                data:informacionUpdated
+                data:ejercicioUpdated
             }) 
-            return informacion    
+            return ejercicio    
         } catch (error) {
             return {
                 err:error
@@ -54,13 +54,13 @@ export class InformacionModel{
         
     }
 
-    static addInformacion=async(dataInformacion)=>{
+    static addEjercicio=async(dataEjercicio)=>{
         try {
-            const newInformacion=await prisma.informacion.create({
-                data:dataInformacion
+            const newEjercicio=await prisma.ejercicio.create({
+                data:dataEjercicio
             })
             
-            return newInformacion    
+            return newEjercicio    
         } catch (error) {
             return {
                 err:error

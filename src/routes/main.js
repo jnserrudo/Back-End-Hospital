@@ -4,6 +4,7 @@ import { usuarioRouter } from "./usuario.js";
 import { patologiaRouter } from "./patologia.js";
 import { recetaRouter } from "./receta.js";
 import { informacionRouter } from "./informacion.js";
+import { ejercicioRouter } from "./ejercicio.js";
 
 /* ENTIDADES:
 
@@ -19,3 +20,5 @@ router.use('/pacientes',pacienteRouter)
 router.use('/patologias',patologiaRouter)
 router.use('/recetas',recetaRouter)
 router.use('/informacion',informacionRouter)
+router.use('/ejercicio',ejercicioRouter)
+

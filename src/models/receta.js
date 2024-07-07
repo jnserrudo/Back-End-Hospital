@@ -105,21 +105,55 @@ export class RecetaModel {
     }
   }
 
-  static getRecetabyPaciente = async (ndocu) => {
+  static getRecetabyPaciente = async (dni) => {
     try {
-      ndocu = +ndocu;
-      const receta = await prisma.receta.findFirst({
+      // Buscar al usuario por su DNI
+      const usuario = await prisma.usuario.findUnique({
         where: {
-          id: id,
+          dni: dni,
         },
       });
-      return receta;
+  
+      if (!usuario) {
+        return { err: "Usuario no encontrado" };
+      }
+  
+      // Buscar al paciente asociado al usuario
+      const paciente = await prisma.paciente.findUnique({
+        where: {
+          idUsuario: usuario.id,
+        },
+        include: {
+          patologia: {
+            include: {
+              patologia: {
+                include: {
+                  recetas: {
+                    include: {
+                      receta: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+  
+      if (!paciente) {
+        return { err: "Paciente no encontrado" };
+      }
+  
+      // Extraer las recetas relacionadas con las patologías
+      const recetas = paciente.patologia.flatMap(p => p.patologia.recetas.map(r => r.receta));
+      return recetas;
     } catch (error) {
       return {
-        err: error,
+        err: error.message,
       };
     }
   };
+  
 
   static updateReceta = async (id, recetaUpdated) => {
     try {
@@ -138,7 +172,7 @@ export class RecetaModel {
   };
 
   static addReceta = async (dataReceta) => {
-    console.log(dataReceta);
+    console.log("dataReceta: ",dataReceta);
 
     try {
       const { idsPatologias, ...recetaData } = dataReceta;
@@ -157,6 +191,7 @@ export class RecetaModel {
         },
       });
 
+      console.log("new receta agregada: ", newReceta)
       return newReceta;
     } catch (error) {
       return {

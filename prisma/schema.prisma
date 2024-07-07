@@ -14,18 +14,25 @@ model Rol {
   usuario Usuario[]
 }
 
+
 // Definición del modelo de Usuarios
 model Usuario {
-  id       Int    @id @default(autoincrement())
-  nombre   String
-  password String // Aquí almacenamos la contraseña, que debería ser encriptada en el backend
-  rol      Rol?   @relation(fields: [idRol], references: [id]) // Relación uno a uno: un usuario está asociado con un solo rol
-  idRol    Int?
+  id         Int       @id @default(autoincrement())
+  usuario    String    @default("")
+  dni        Int       @default(0)
+  email      String    @default("")
+  nombre     String
+  blanqueado Int       @default(0)
+  detalle    String    @default("")
+  apellido   String    @default("")
+  password   String // Aquí almacenamos la contraseña, que debería ser encriptada en el backend
+  rol        Rol?    @relation(fields: [idRol], references: [id])
+  idRol      Int?
+  paciente   Paciente?
 }
-
 // Definición del modelo de Recetas
 model Receta {
-  id           Int               @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   nombre       String
   porciones    String
   calorias     String
@@ -33,14 +40,33 @@ model Receta {
   urlFoto      String
   ingredientes String
   preparacion  String
-  patologia    PatologiaReceta[]
+
+  tipsSaludables        String  @default("")
+  composicionNutricional String  @default("")
+
+  patologia PatologiaReceta[]
 }
 
 // Definición del modelo de Pacientes
 model Paciente {
-  id        Int                 @id @default(autoincrement())
-  nombre    String
-  apellido  String
+  id        Int      @id @default(autoincrement())
+
+
+  legajo                     String?            // Campo opcional
+  fichaRegistro              String?            // Campo opcional
+  fichaSalud                 String?            // Campo opcional
+  resultadosEstudios         String?            // Campo opcional
+  informes                   String?            // Campo opcional
+  seguimiento                String?            // Campo opcional
+  diariosIngesta             String?            // Campo opcional
+  diariosActividadFisica     String?            // Campo opcional
+  registroFotografico        String?            // Campo opcional
+  indicacionesPrescripciones String?            // Campo opcional
+
+
+  idUsuario Int?  @unique // Nueva columna para la relación con Usuario
+  usuario   Usuario? @relation(fields: [idUsuario], references: [id]) // Relación uno a uno con Usuario
+
   patologia PatologiaPaciente[]
 }
 

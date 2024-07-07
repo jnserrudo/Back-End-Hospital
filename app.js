@@ -88,7 +88,7 @@ const front=(req, res) => {
 app.use('/api', router);
 
 
-app.get("/", front);
+//app.get("/", front);
 
 // Manejo de errores CORS
 app.use((err, req, res, next) => {
@@ -99,6 +99,13 @@ app.use((err, req, res, next) => {
         next();
     }
 });
+
+
+console.log(path.join(dirnamex, 'uploads'))
+// Servir archivos estáticos
+app.use('/uploads', express.static(path.join(dirnamex,'src', 'uploads')));
+
+
 
 const PORT= process.env.PORT??1234
 
