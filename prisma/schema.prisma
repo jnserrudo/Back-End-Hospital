@@ -12,8 +12,9 @@ model Rol {
   id      Int       @id @default(autoincrement())
   rol     String
   usuario Usuario[]
-}
+    habilitado Int @default(1)
 
+}
 
 // Definición del modelo de Usuarios
 model Usuario {
@@ -26,10 +27,13 @@ model Usuario {
   detalle    String    @default("")
   apellido   String    @default("")
   password   String // Aquí almacenamos la contraseña, que debería ser encriptada en el backend
-  rol        Rol?    @relation(fields: [idRol], references: [id])
+  rol        Rol?      @relation(fields: [idRol], references: [id])
   idRol      Int?
   paciente   Paciente?
+    habilitado Int @default(1)
+
 }
+
 // Definición del modelo de Recetas
 model Receta {
   id           Int    @id @default(autoincrement())
@@ -41,31 +45,31 @@ model Receta {
   ingredientes String
   preparacion  String
 
-  tipsSaludables        String  @default("")
-  composicionNutricional String  @default("")
+  tipsSaludables         String @default("")
+  composicionNutricional String @default("")
+  habilitado Int @default(1)
 
   patologia PatologiaReceta[]
 }
 
 // Definición del modelo de Pacientes
 model Paciente {
-  id        Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
+  legajo                     String? // Campo opcional
+  fichaRegistro              String? // Campo opcional
+  fichaSalud                 String? // Campo opcional
+  resultadosEstudios         String? // Campo opcional
+  informes                   String? // Campo opcional
+  seguimiento                String? // Campo opcional
+  diariosIngesta             String? // Campo opcional
+  diariosActividadFisica     String? // Campo opcional
+  registroFotografico        String? // Campo opcional
+  indicacionesPrescripciones String? // Campo opcional
 
-  legajo                     String?            // Campo opcional
-  fichaRegistro              String?            // Campo opcional
-  fichaSalud                 String?            // Campo opcional
-  resultadosEstudios         String?            // Campo opcional
-  informes                   String?            // Campo opcional
-  seguimiento                String?            // Campo opcional
-  diariosIngesta             String?            // Campo opcional
-  diariosActividadFisica     String?            // Campo opcional
-  registroFotografico        String?            // Campo opcional
-  indicacionesPrescripciones String?            // Campo opcional
-
-
-  idUsuario Int?  @unique // Nueva columna para la relación con Usuario
+  idUsuario Int?     @unique // Nueva columna para la relación con Usuario
   usuario   Usuario? @relation(fields: [idUsuario], references: [id]) // Relación uno a uno con Usuario
+  habilitado Int @default(1)
 
   patologia PatologiaPaciente[]
 }
@@ -79,13 +83,19 @@ model Patologia {
   recetas     PatologiaReceta[]
   informacion PatologiaInformacion[]
   ejercicio   PatologiaEjercicio[]
+    habilitado Int @default(1)
+
 }
 
 model Ejercicio {
-  id          Int                  @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   nombre      String
   descripcion String
-  patologia   PatologiaEjercicio[]
+  urlVideo    String // Nuevo campo obligatorio para la URL del video
+
+  patologia PatologiaEjercicio[]
+    habilitado Int @default(1)
+
 }
 
 // Definición de la entidad de unión PatologiaPaciente
@@ -95,6 +105,8 @@ model PatologiaPaciente {
   pacienteId  Int
   patologia   Patologia @relation(fields: [patologiaId], references: [id])
   patologiaId Int
+    habilitado Int @default(1)
+
 }
 
 model PatologiaReceta {
@@ -103,6 +115,8 @@ model PatologiaReceta {
   recetaId    Int
   patologia   Patologia @relation(fields: [patologiaId], references: [id])
   patologiaId Int
+    habilitado Int @default(1)
+
 }
 
 model PatologiaInformacion {
@@ -111,6 +125,8 @@ model PatologiaInformacion {
   informacionId Int
   patologia     Patologia   @relation(fields: [patologiaId], references: [id])
   patologiaId   Int
+    habilitado Int @default(1)
+
 }
 
 model PatologiaEjercicio {
@@ -119,12 +135,17 @@ model PatologiaEjercicio {
   ejercicioId Int
   patologia   Patologia @relation(fields: [patologiaId], references: [id])
   patologiaId Int
+    habilitado Int @default(1)
+
 }
 
 // Definición del modelo de Informacion
 model Informacion {
-  id        Int                    @id @default(autoincrement())
-  nombre    String
-  url       String
+  id          Int    @id @default(autoincrement())
+  nombre      String
+  urlVideo    String // Reemplaza url por urlVideo
+  descripcion String // Nuevo campo para la descripción            // Nuevo campo obligatorio para la URL del video
+  habilitado Int @default(1)
+
   patologia PatologiaInformacion[]
 }

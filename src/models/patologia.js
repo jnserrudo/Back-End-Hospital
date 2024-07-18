@@ -5,7 +5,11 @@ export class PatologiaModel{
 
     static getAll=async()=>{
         try {
-            const patologias=await prisma.patologia.findMany()
+            const patologias=await prisma.patologia.findMany({
+                where: {
+                  habilitado: 1
+                }
+              })
             /* console.log(data)
             const patologias=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
@@ -68,5 +72,45 @@ export class PatologiaModel{
         }
         
     }
+
+    static disable = async (id) => {
+        try {
+          // Deshabilitar la patología
+      const patologia = await prisma.patologia.update({
+        where: { id: +id },
+        data: { habilitado: 0 }
+      });
+
+      // Deshabilitar las relaciones en PatologiaPaciente
+      await prisma.patologiaPaciente.updateMany({
+        where: { patologiaId: id },
+        data: { habilitado: 0 }
+      });
+
+      // Deshabilitar las relaciones en PatologiaReceta
+      await prisma.patologiaReceta.updateMany({
+        where: { patologiaId: id },
+        data: { habilitado: 0 }
+      });
+
+      // Deshabilitar las relaciones en PatologiaInformacion
+      await prisma.patologiaInformacion.updateMany({
+        where: { patologiaId: id },
+        data: { habilitado: 0 }
+      });
+
+      // Deshabilitar las relaciones en PatologiaEjercicio
+      await prisma.patologiaEjercicio.updateMany({
+        where: { patologiaId: id },
+        data: { habilitado: 0 }
+      });
+
+      return { message: "Patología y entidades relacionadas deshabilitadas con éxito" };
+        } catch (error) {
+          return {
+            err: error,
+          };
+        }
+      };
 
 }

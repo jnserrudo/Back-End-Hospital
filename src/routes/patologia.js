@@ -10,5 +10,7 @@ patologiaRouter.get('/:id', PatologiaController.getPatologiabyId)
 
 patologiaRouter.put('/:id', PatologiaController.updatePatologia)
 
+patologiaRouter.put('/inhabilitar/:id', PatologiaController.disable)
+
 patologiaRouter.post('/',PatologiaController.addPatologia)
 

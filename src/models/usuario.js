@@ -1,14 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import bcrypt from 'bcrypt';
-
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "../../procesoEmail.js";
 
 const prisma = new PrismaClient();
 export class UsuarioModel {
   static getAll = async () => {
     try {
       console.log("model usuario");
-      const usuarios = await prisma.usuario.findMany();
+      const usuarios = await prisma.usuario.findMany({
+        where: {
+          habilitado: 1,
+        },
+      });
       console.log("resultado de usuario en el modelo: ", usuarios);
       /* console.log(data)
         const usuarios=await data.json()
@@ -23,14 +28,14 @@ export class UsuarioModel {
 
   static getRolByUser = async (user) => {
     try {
-      console.log("model usuario",user);
+      console.log("model usuario", user);
       const rol = await prisma.usuario.findFirst({
         where: {
           usuario: user,
         },
       });
 
-      console.log(rol)
+      console.log(rol);
       return rol?.idRol;
     } catch (error) {
       return {
@@ -131,37 +136,61 @@ export class UsuarioModel {
 
   static blanquearUsuario = async (id) => {
     try {
-      // Obtener el usuario actual
-      const usuario = await prisma.usuario.findUnique({
-        where: { id: +id },
+      // Iniciar una transacción
+      const result = await prisma.$transaction(async (prisma) => {
+        // Generar una nueva contraseña temporal
+        const nuevaContrasena = crypto.randomBytes(3).toString("hex"); // Genera una contraseña corta
+
+        console.log("Nueva contraseña temporal: ", nuevaContrasena);
+
+        // Encriptar la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashContrasena = await bcrypt.hash(nuevaContrasena, salt);
+
+        // Actualizar el usuario con la nueva contraseña y establecer 'blanqueado' a 0
+        const usuarioActualizado = await prisma.usuario.update({
+          where: { id: +id },
+          data: {
+            password: hashContrasena,
+            blanqueado: 0,
+          },
+        });
+
+        // Enviar el correo con la nueva contraseña
+        const emailResponse = await sendPasswordResetEmail(
+          usuarioActualizado.email,
+          nuevaContrasena
+        );
+
+        console.log("emailResponse,emailResponse.statusCode: ",emailResponse,emailResponse.statusCode)
+        // Verificar si el envío del correo fue exitoso
+        if (emailResponse.err) {
+          throw new Error("Error al enviar el correo");
+        }
+
+        return usuarioActualizado;
       });
 
-      if (!usuario) {
-        return { err: "Usuario no encontrado" };
-      }
-
-      // Cambiar el estado de 'blanqueado' entre 0 y 1
-      const nuevoEstadoBlanqueado = usuario.blanqueado === 0 ? 1 : 0;
-
-      // Actualizar el usuario con el nuevo estado de 'blanqueado'
-      const usuarioActualizado = await prisma.usuario.update({
-        where: { id: +id },
-        data: { blanqueado: nuevoEstadoBlanqueado },
-      });
-
-      return usuarioActualizado;
+      return result;
     } catch (error) {
+      console.log("Catch del error: ",error.message)
       return { err: error.message };
     }
   };
 
   static addUsuario = async (dataUsuario) => {
     try {
-      const { idRol, idPatologias, ...restoDataUsuario } = dataUsuario;
+      const { idRol, idsPatologias, password,email, ...restoDataUsuario } =
+        dataUsuario;
+
+      // Encriptar la contraseña
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUsuario = await prisma.usuario.create({
         data: {
           ...restoDataUsuario,
+          email:email,
+          password: hashedPassword, // Guardar la contraseña encriptada
           rol: {
             connect: { id: idRol },
           },
@@ -184,16 +213,24 @@ export class UsuarioModel {
             registroFotografico: "",
             indicacionesPrescripciones: "",
             patologia: {
-              create: idPatologias.map((idPatologia) => ({
+              create: idsPatologias.map((idPatologia) => ({
                 patologiaId: idPatologia,
               })),
             },
           },
         });
 
+        const emailResponse=await sendPasswordResetEmail(newUsuario.email, password) 
+        if (emailResponse.err) {
+          throw new Error("Error al enviar el correo");
+        }
         return { newUsuario, newPaciente };
       }
 
+      const emailResponse=await sendPasswordResetEmail(newUsuario.email, password) 
+        if (emailResponse.err) {
+          throw new Error("Error al enviar el correo");
+        }
       //lo pongo en un objeto, para poder tratarlo y hacer validaciones a esta llamada desde el front
       return { newUsuario };
     } catch (error) {
@@ -206,25 +243,25 @@ export class UsuarioModel {
   static getJwtToken = async (usuario, password) => {
     try {
       let usuarioValidated = await this.validateUsuario(usuario, password);
-      console.log("usuarioValidated: ", usuarioValidated,usuarioValidated.id)
+      console.log("usuarioValidated: ", usuarioValidated, usuarioValidated.id);
       if (usuarioValidated?.id > 0) {
         //usuario validado, devolver token
         let token = jwt.sign({ usuario }, "ozuna", {
           expiresIn: "30m",
         });
 
-        let values={
+        let values = {
           token,
           dni: usuarioValidated.dni,
           id: usuarioValidated.id,
           blanqueado: usuarioValidated.blanqueado,
         };
-        console.log("values: ",values)
+        console.log("values: ", values);
 
-        return values
+        return values;
       } else {
         //usuario no validado
-        console.log("Usuario no valido")
+        console.log("Usuario no valido");
         return {
           err: "Usuario no valido",
         };
@@ -245,8 +282,8 @@ export class UsuarioModel {
           usuario: usuario,
         },
       });
-  
-      if (result && await bcrypt.compare(password, result.password)) {
+
+      if (result && (await bcrypt.compare(password, result.password))) {
         return {
           dni: result.dni,
           id: result.id,
@@ -261,4 +298,57 @@ export class UsuarioModel {
       };
     }
   };
+
+  static disable = async (id) => {
+    try {
+      const usuario = await prisma.usuario.update({
+        where: { id: +id },
+        data: { habilitado: 0 },
+      });
+      return usuario;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+
+  static getPatologiaToUsuarioEdit = async (id) => {
+    try {
+      id = +id;
+  
+      // Obtener todas las patologías
+      const todasLasPatologias = await prisma.patologia.findMany();
+  
+      // Obtener el usuario y el paciente asociado con sus patologías
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: id },
+        include: {
+          paciente: {
+            include: {
+              patologia: {
+                include: {
+                  patologia: true,
+                },
+              },
+            },
+          },
+        },
+      });
+  
+      // Verificar si el usuario tiene un paciente asociado
+      const paciente = usuario?.paciente;
+      const patologiasAsociadas = paciente?.patologia.map((p) => p.patologia) || [];
+      const patologiasAsociadasIds = new Set(patologiasAsociadas.map((p) => p.id));
+  
+      const patologiasNoAsociadas = todasLasPatologias.filter(
+        (p) => !patologiasAsociadasIds.has(p.id)
+      );
+  
+      return { patologiasAsociadas, patologiasNoAsociadas };
+    } catch (error) {
+      return { err: error.message };
+    }
+  };
+  
 }

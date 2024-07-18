@@ -41,5 +41,8 @@ recetaRouter.get('/paciente/:ndocu', RecetaController.getRecetabyPaciente)
 
 recetaRouter.put('/:id', RecetaController.updateReceta)
 
+recetaRouter.put('/inhabilitar/:id', RecetaController.disable)
+
+
 recetaRouter.post('/',RecetaController.addReceta)
 

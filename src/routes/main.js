@@ -20,5 +20,5 @@ router.use('/pacientes',pacienteRouter)
 router.use('/patologias',patologiaRouter)
 router.use('/recetas',recetaRouter)
 router.use('/informacion',informacionRouter)
-router.use('/ejercicio',ejercicioRouter)
+router.use('/ejercicios',ejercicioRouter)
 

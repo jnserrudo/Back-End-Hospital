@@ -89,4 +89,15 @@ export class RecetaController {
       res.json({ message: newReceta?.err }).status(404);
     }
   };
+
+  static disable = async (req, res) => {
+    const {id}=req.params
+    const result = await RecetaModel.disable(id);
+    if (!result ?.err) {
+      res.json(result );
+    } else {
+      res.json({ message: "No se pudo inhabilitar la Receta" }).status(404);
+    }
+  };
+
 }

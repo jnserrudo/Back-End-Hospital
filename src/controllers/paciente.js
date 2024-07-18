@@ -38,4 +38,14 @@ export class PacienteController{
             res.json({message:"Paciente no encontrado"}).status(404)
         }
     }
+
+    static disable = async (req, res) => {
+        const {id}=req.params
+        const result = await PacienteModel.disable(id);
+        if (!result ?.err) {
+          res.json(result );
+        } else {
+          res.json({ message: "No se pudo inhabilitar el Paciente" }).status(404);
+        }
+      };
 }

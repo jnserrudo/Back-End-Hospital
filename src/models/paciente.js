@@ -5,7 +5,11 @@ export class PacienteModel{
 
     static getAll=async()=>{
         try {
-            const pacientes=await prisma.paciente.findMany()
+            const pacientes=await prisma.paciente.findMany({
+                where: {
+                  habilitado: 1
+                }
+              })
             /* console.log(data)
             const pacientes=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
@@ -68,5 +72,17 @@ export class PacienteModel{
         }
         
     }
-
+    static disable = async (id) => {
+        try {
+          const paciente= await prisma.paciente.update({
+            where: { id: +id },
+            data: { habilitado: 0 }
+          });
+          return paciente;
+        } catch (error) {
+          return {
+            err: error,
+          };
+        }
+      };
 }

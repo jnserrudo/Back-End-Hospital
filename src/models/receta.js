@@ -4,11 +4,12 @@ const prisma = new PrismaClient();
 export class RecetaModel {
   static getAll = async () => {
     try {
-      const recetas = await prisma.receta.findMany();
-      /* console.log(data)
-            const recetas=await data.json()
-            NO ES NECESARIO CONVERTIR A JSON
-             */ return recetas;
+      const recetas = await prisma.receta.findMany({
+        where: {
+          habilitado: 1,
+        },
+      });
+      return recetas;
     } catch (error) {
       return {
         err: error,
@@ -98,12 +99,12 @@ export class RecetaModel {
           },
         },
       });
-  
+
       return recetas;
     } catch (error) {
       return { err: error };
     }
-  }
+  };
 
   static getRecetabyPaciente = async (dni) => {
     try {
@@ -113,11 +114,11 @@ export class RecetaModel {
           dni: dni,
         },
       });
-  
+
       if (!usuario) {
         return { err: "Usuario no encontrado" };
       }
-  
+
       // Buscar al paciente asociado al usuario
       const paciente = await prisma.paciente.findUnique({
         where: {
@@ -130,22 +131,24 @@ export class RecetaModel {
                 include: {
                   recetas: {
                     include: {
-                      receta: true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                      receta: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
-  
+
       if (!paciente) {
         return { err: "Paciente no encontrado" };
       }
-  
+
       // Extraer las recetas relacionadas con las patologías
-      const recetas = paciente.patologia.flatMap(p => p.patologia.recetas.map(r => r.receta));
+      const recetas = paciente.patologia.flatMap((p) =>
+        p.patologia.recetas.map((r) => r.receta)
+      );
       return recetas;
     } catch (error) {
       return {
@@ -153,9 +156,8 @@ export class RecetaModel {
       };
     }
   };
-  
 
-  static updateReceta = async (id, recetaUpdated) => {
+  /* static updateReceta = async (id, recetaUpdated) => {
     try {
       const receta = await prisma.receta.update({
         where: {
@@ -169,10 +171,51 @@ export class RecetaModel {
         err: error,
       };
     }
+  }; */
+
+  static updateReceta = async (id, recetaUpdated) => {
+    try {
+      const { idsPatologias, ...recetaData } = recetaUpdated;
+
+      // Inicia una transacción
+      const result = await prisma.$transaction(async (prisma) => {
+        // Actualiza la receta
+        const receta = await prisma.receta.update({
+          where: {
+            id: +id,
+          },
+          data: recetaData,
+        });
+
+        // Elimina las relaciones antiguas
+        await prisma.patologiaReceta.deleteMany({
+          where: {
+            recetaId: +id,
+          },
+        });
+
+        // Inserta las nuevas relaciones
+        const relaciones = idsPatologias.map((patologiaId) => ({
+          recetaId: +id,
+          patologiaId,
+        }));
+        await prisma.patologiaReceta.createMany({
+          data: relaciones,
+        });
+
+        return receta;
+      });
+
+      return result;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
   };
 
   static addReceta = async (dataReceta) => {
-    console.log("dataReceta: ",dataReceta);
+    console.log("dataReceta: ", dataReceta);
 
     try {
       const { idsPatologias, ...recetaData } = dataReceta;
@@ -191,8 +234,22 @@ export class RecetaModel {
         },
       });
 
-      console.log("new receta agregada: ", newReceta)
+      console.log("new receta agregada: ", newReceta);
       return newReceta;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+
+  static disable = async (id) => {
+    try {
+      const receta = await prisma.receta.update({
+        where: { id: +id },
+        data: { habilitado: 0 },
+      });
+      return receta;
     } catch (error) {
       return {
         err: error,

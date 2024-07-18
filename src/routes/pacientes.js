@@ -10,5 +10,8 @@ pacienteRouter.get('/:dni', PacienteController.getPacientebyDni)
 
 pacienteRouter.put('/:dni', PacienteController.updatePaciente)
 
+pacienteRouter.put('/inhabilitar/:id', PacienteController.disable)
+
+
 pacienteRouter.post('/',PacienteController.addPaciente)
 

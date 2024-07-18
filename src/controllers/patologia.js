@@ -38,4 +38,15 @@ export class PatologiaController{
             res.json({message:"Patologia no encontrado"}).status(404)
         }
     }
+
+    static disable = async (req, res) => {
+        const {id}=req.params
+        const result = await PatologiaModel.disable(id);
+        if (!result ?.err) {
+          res.json(result );
+        } else {
+          res.json({ message: "No se pudo inhabilitar la Patologia" }).status(404);
+        }
+      };
+
 }

@@ -74,6 +74,7 @@ export class UsuarioController {
   static updateUsuario = async (req, res) => {
     let id = req.params.id;
     const usuario = await UsuarioModel.updateUsuario(id, req.body);
+    console.log(usuario)
     if (!usuario?.err) {
       res.json(usuario);
     } else {
@@ -84,10 +85,11 @@ export class UsuarioController {
   static blanquearUsuario = async (req, res) => {
     let id = req.params.id;
     const usuario = await UsuarioModel.blanquearUsuario(id);
+    console.log("CONTROLLER blanquearUsuario: ",usuario)
     if (!usuario?.err) {
       res.json(usuario);
     } else {
-      res.json({ message: "Usuario no encontrado" }).status(404);
+      res.json({ err:{message: "Error al blanquear al usuario"} }).status(404);
     }
   };
 
@@ -109,10 +111,11 @@ export class UsuarioController {
 
   static addUsuario = async (req, res) => {
     const newUsuario = await UsuarioModel.addUsuario(req.body);
+    console.log(newUsuario)
     if (!newUsuario?.err) {
       res.json(newUsuario);
     } else {
-      res.json({ message: "No se pudo insertar el Usuario" }).status(404);
+      res.json({ err:{message: "Error al crear al usuario"} }).status(404);
     }
   };
 
@@ -127,4 +130,26 @@ export class UsuarioController {
       res.json({ error: "No se pudo obtener el jwt token" }).status(404);
     }
   };
+
+  static disable = async (req, res) => {
+    const {id}=req.params
+    const result = await UsuarioModel.disable(id);
+    console.log(result)
+    if (!result ?.err) {
+      res.json(result );
+    } else {
+      res.json({ message: "No se pudo inhabilitar el Usuario" }).status(404);
+    }
+  };
+  static getPatologiaToUsuarioEdit = async (req, res) => {
+    let id = req.params.id;
+    const patologias = await UsuarioModel.getPatologiaToUsuarioEdit(id);
+    if (!patologias?.err) {
+      res.json(patologias);
+    } else {
+      res.json({ message: "Patologias no encontradas" }).status(404);
+    }
+  };
+
+
 }

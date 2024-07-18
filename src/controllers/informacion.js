@@ -1,41 +1,77 @@
-import { InformacionModel } from "../models/informacion.js"
+import { InformacionModel } from "../models/informacion.js";
 
-export class InformacionController{
-    static getAll=async(req,res)=>{
-        const informacions=await InformacionModel.getAll()
-        if(!informacions?.err){
-            res.json(informacions)
-        }else{
-            res.json({message:"Informacions no encontrados"}).status(404)
-        }
+export class InformacionController {
+  static getAll = async (req, res) => {
+    const informacions = await InformacionModel.getAll();
+    if (!informacions?.err) {
+      res.json(informacions);
+    } else {
+      res.json({ message: "Informacions no encontrados" }).status(404);
     }
+  };
 
-    static getInformacionbyId=async(req,res)=>{
-        let id=req.params.id
-        const informacion=await InformacionModel.getInformacionbyDni(dni)
-        if(!informacion?.err){
-            res.json(informacion)
-        }else{
-            res.json({message:"Informacion no encontrado"}).status(404)
-        }
+  static getInformacionbyId = async (req, res) => {
+    let id = req.params.id;
+    const informacion = await InformacionModel.getInformacionbyId(id);
+    if (!informacion?.err) {
+      res.json(informacion);
+    } else {
+      res.json({ message: "Informacion no encontrado" }).status(404);
     }
+  };
 
-    static updateInformacion=async(req,res)=>{
-        let dni=req.params.dni
-        const informacion=await InformacionModel.updateInformacion(dni,req.body)
-        if(!informacion?.err){
-            res.json(informacion)
-        }else{
-            res.json({message:"Informacion no encontrado"}).status(404)
-        }
+  static updateInformacion = async (req, res) => {
+    let id = req.params.dni;
+    const informacion = await InformacionModel.updateInformacion(id, req.body);
+    if (!informacion?.err) {
+      res.json(informacion);
+    } else {
+      res.json({ message: "Informacion no encontrado" }).status(404);
     }
+  };
 
-    static addInformacion=async(req,res)=>{
-        const newInformacion=await InformacionModel.addInformacion(req.body)
-        if(!newInformacion?.err){
-            res.json(newInformacion)
-        }else{
-            res.json({message:"Informacion no encontrado"}).status(404)
-        }
+  static addInformacion = async (req, res) => {
+    const newInformacion = await InformacionModel.addInformacion(req.body);
+    if (!newInformacion?.err) {
+      res.json(newInformacion);
+    } else {
+      res.json({ message: "Informacion no encontrado" }).status(404);
     }
+  };
+
+  static getPatologiaToInformacionAdd = async (req, res) => {
+    console.log("controller getPatologiaToInformacionAdd");
+    const informacion = await InformacionModel.getPatologiaToInformacionAdd();
+    if (!informacion?.err) {
+      res.json(informacion);
+    } else {
+      res.json({ message: "Patologias no encontradas" }).status(404);
+    }
+  };
+
+  static getPatologiaToInformacionEdit = async (req, res) => {
+    let id = req.params.id;
+    const informacion = await InformacionModel.getPatologiaToInformacionEdit(id);
+    if (!informacion?.err) {
+      res.json(informacion);
+    } else {
+      res.json({ message: "Informacion no encontrado" }).status(404);
+    }
+  };
+
+  static uploadVideo = async (req, res) => {
+    console.log(req.file);
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({ url: fileUrl });
+  };
+
+  static disable = async (req, res) => {
+    const {id}=req.params
+    const result = await InformacionModel.disable(id);
+    if (!result ?.err) {
+      res.json(result );
+    } else {
+      res.json({ message: "No se pudo inhabilitar la informacion" }).status(404);
+    }
+  };
 }
