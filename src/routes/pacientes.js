@@ -8,6 +8,11 @@ pacienteRouter.get('/', PacienteController.getAll)
 
 pacienteRouter.get('/:dni', PacienteController.getPacientebyDni)
 
+pacienteRouter.get('/informacion/patologias/:idUsuario', PacienteController.getInformacionxPaciente)
+
+pacienteRouter.get('/ejercicios/patologias/:idUsuario', PacienteController.getEjerciciosxPaciente)
+
+
 pacienteRouter.put('/:dni', PacienteController.updatePaciente)
 
 pacienteRouter.put('/inhabilitar/:id', PacienteController.disable)

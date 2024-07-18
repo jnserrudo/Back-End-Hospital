@@ -19,6 +19,27 @@ export class PacienteController{
             res.json({message:"Paciente no encontrado"}).status(404)
         }
     }
+    static getInformacionxPaciente=async(req,res)=>{
+        let idUsuario=req.params.idUsuario
+        const informacion=await PacienteModel.getInformacionxPaciente(idUsuario)
+        console.log(informacion)
+        if(!informacion?.err){
+            res.json(informacion)
+        }else{
+            res.json({message:"Informaciones no encontradas"}).status(404)
+        }
+    }
+
+    static getEjerciciosxPaciente=async(req,res)=>{
+        let idUsuario=req.params.idUsuario
+        const ejercicios=await PacienteModel.getEjerciciosxPaciente(idUsuario)
+        console.log(ejercicios)
+        if(!ejercicios?.err){
+            res.json(ejercicios)
+        }else{
+            res.json({message:"Ejercicios no encontrados"}).status(404)
+        }
+    }
 
     static updatePaciente=async(req,res)=>{
         let dni=req.params.dni
