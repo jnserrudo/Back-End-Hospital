@@ -1,5 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { fileURLToPath } from "url";
+import { dirname, join, basename } from "path";
+import fs from "fs";
 
+const filename = fileURLToPath(import.meta.url);
+const dirnamex = dirname(filename);
 const prisma = new PrismaClient();
 export class EjercicioModel {
   static getAll = async () => {
@@ -56,7 +61,10 @@ export class EjercicioModel {
   static updateEjercicio = async (id, ejercicioUpdated) => {
     try {
       const { idsPatologias, ...ejercicioData } = ejercicioUpdated;
-
+      // Recupera la URL del video antiguo antes de actualizar
+      const oldEjercicio = await prisma.ejercicio.findUnique({
+        where: { id: +id },
+      });
       // Inicia una transacción
       const result = await prisma.$transaction(async (prisma) => {
         // Actualiza el ejercicio
@@ -88,6 +96,24 @@ export class EjercicioModel {
         return ejercicio;
       });
 
+      // Después de actualizar, elimina el archivo antiguo si hay una nueva URL
+      if (
+        ejercicioData.urlVideo &&
+        oldEjercicio.urlVideo !== ejercicioData.urlVideo
+      ) {
+        const oldFilePath = join(
+          dirnamex,
+          "../uploads",
+          basename(oldEjercicio.urlVideo)
+        );
+        fs.unlink(oldFilePath, (err) => {
+          if (err) {
+            console.error(`Error al eliminar el archivo antiguo: ${err}`);
+          } else {
+            console.log(`Archivo antiguo eliminado: ${oldFilePath}`);
+          }
+        });
+      }
       return result;
     } catch (error) {
       return {

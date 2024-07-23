@@ -1,4 +1,11 @@
 import { PrismaClient } from "@prisma/client";
+import { fileURLToPath } from 'url';
+import { dirname, join, basename } from 'path';
+import fs from 'fs';
+
+// Obtén el nombre del archivo y el directorio actual
+const filename = fileURLToPath(import.meta.url);
+const dirnamex = dirname(filename);
 
 const prisma = new PrismaClient();
 export class InformacionModel {
@@ -57,6 +64,10 @@ export class InformacionModel {
     try {
       const { idsPatologias, ...informacionData } = informacionUpdated;
 
+      const oldInformacion = await prisma.informacion.findUnique({
+        where: { id: +id },
+      });
+      
       // Inicia una transacción
       const result = await prisma.$transaction(async (prisma) => {
         // Actualiza la información
@@ -85,6 +96,19 @@ export class InformacionModel {
 
         return informacion;
       });
+      
+      // Después de actualizar, elimina el archivo antiguo si hay una nueva URL
+      if (informacionData.urlVideo && oldInformacion.urlVideo !== informacionData.urlVideo) {
+        const oldFilePath = join(dirnamex, '../uploads', basename(oldInformacion.urlVideo));
+        fs.unlink(oldFilePath, (err) => {
+          if (err) {
+            console.error(`Error al eliminar el archivo antiguo: ${err}`);
+          } else {
+            console.log(`Archivo antiguo eliminado: ${oldFilePath}`);
+          }
+        });
+      }
+      
 
       return result;
     } catch (error) {
