@@ -74,6 +74,7 @@ export class RecetaController {
   static updateReceta = async (req, res) => {
     let id = req.params.id;
     const receta = await RecetaModel.updateReceta(id, req.body);
+    console.log(receta)
     if (!receta?.err) {
       res.json(receta);
     } else {

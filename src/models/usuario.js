@@ -180,65 +180,65 @@ export class UsuarioModel {
 
   static addUsuario = async (dataUsuario) => {
     try {
-      const { idRol, idsPatologias, password,email, ...restoDataUsuario } =
-        dataUsuario;
-
+      const { idRol, idsPatologias, password, email, ...restoDataUsuario } = dataUsuario;
+  
       // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newUsuario = await prisma.usuario.create({
-        data: {
-          ...restoDataUsuario,
-          email:email,
-          password: hashedPassword, // Guardar la contraseña encriptada
-          rol: {
-            connect: { id: idRol },
-          },
-        },
-      });
-
-      if (idRol === 3) {
-        // Asumiendo que el rol de paciente tiene id 3
-        const newPaciente = await prisma.paciente.create({
+  
+      const result = await prisma.$transaction(async (prisma) => {
+        const newUsuario = await prisma.usuario.create({
           data: {
-            idUsuario: newUsuario.id,
-            legajo: "",
-            fichaRegistro: "",
-            fichaSalud: "",
-            resultadosEstudios: "",
-            informes: "",
-            seguimiento: "",
-            diariosIngesta: "",
-            diariosActividadFisica: "",
-            registroFotografico: "",
-            indicacionesPrescripciones: "",
-            patologia: {
-              create: idsPatologias.map((idPatologia) => ({
-                patologiaId: idPatologia,
-              })),
+            ...restoDataUsuario,
+            email: email,
+            password: hashedPassword, // Guardar la contraseña encriptada
+            rol: {
+              connect: { id: idRol },
             },
           },
         });
-
-        const emailResponse=await sendPasswordResetEmail(newUsuario.email, password) 
+  
+        let newPaciente = null;
+        if (idRol === 3) {
+          // Asumiendo que el rol de paciente tiene id 3
+          newPaciente = await prisma.paciente.create({
+            data: {
+              idUsuario: newUsuario.id,
+              legajo: "",
+              fichaRegistro: "",
+              fichaSalud: "",
+              resultadosEstudios: "",
+              informes: "",
+              seguimiento: "",
+              diariosIngesta: "",
+              diariosActividadFisica: "",
+              registroFotografico: "",
+              indicacionesPrescripciones: "",
+              patologia: {
+                create: idsPatologias.map((idPatologia) => ({
+                  patologiaId: idPatologia,
+                })),
+              },
+            },
+          });
+        }
+  
+        // Intentar enviar el correo después de crear los registros en la base de datos
+        const emailResponse = await sendPasswordResetEmail(newUsuario.email, password);
         if (emailResponse.err) {
           throw new Error("Error al enviar el correo");
         }
+  
         return { newUsuario, newPaciente };
-      }
-
-      const emailResponse=await sendPasswordResetEmail(newUsuario.email, password) 
-        if (emailResponse.err) {
-          throw new Error("Error al enviar el correo");
-        }
-      //lo pongo en un objeto, para poder tratarlo y hacer validaciones a esta llamada desde el front
-      return { newUsuario };
+      });
+  
+      return result;
     } catch (error) {
       return {
-        err: error,
+        err: error.message,
       };
     }
   };
+  
 
   static getJwtToken = async (usuario, password) => {
     try {

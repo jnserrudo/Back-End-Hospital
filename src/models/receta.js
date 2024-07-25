@@ -187,22 +187,24 @@ export class RecetaModel {
           data: recetaData,
         });
 
-        // Elimina las relaciones antiguas
-        await prisma.patologiaReceta.deleteMany({
-          where: {
+        // Si idsPatologias está presente y no está vacío
+        if (idsPatologias && idsPatologias.length > 0) {
+          // Elimina las relaciones antiguas
+          await prisma.patologiaReceta.deleteMany({
+            where: {
+              recetaId: +id,
+            },
+          });
+
+          // Inserta las nuevas relaciones
+          const relaciones = idsPatologias.map((patologiaId) => ({
             recetaId: +id,
-          },
-        });
-
-        // Inserta las nuevas relaciones
-        const relaciones = idsPatologias.map((patologiaId) => ({
-          recetaId: +id,
-          patologiaId,
-        }));
-        await prisma.patologiaReceta.createMany({
-          data: relaciones,
-        });
-
+            patologiaId,
+          }));
+          await prisma.patologiaReceta.createMany({
+            data: relaciones,
+          });
+        }
         return receta;
       });
 

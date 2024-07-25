@@ -74,23 +74,25 @@ export class EjercicioModel {
           },
           data: ejercicioData,
         });
-
-        // Elimina las relaciones antiguas
-        await prisma.patologiaEjercicio.deleteMany({
-          where: {
-            ejercicioId: +id,
-          },
-        });
-
-        // Inserta las nuevas relaciones
+        // Si idsPatologias está presente y no está vacío
         if (idsPatologias && idsPatologias.length > 0) {
-          const relaciones = idsPatologias.map((patologiaId) => ({
-            ejercicioId: +id,
-            patologiaId,
-          }));
-          await prisma.patologiaEjercicio.createMany({
-            data: relaciones,
+          // Elimina las relaciones antiguas
+          await prisma.patologiaEjercicio.deleteMany({
+            where: {
+              ejercicioId: +id,
+            },
           });
+
+          // Inserta las nuevas relaciones
+          if (idsPatologias && idsPatologias.length > 0) {
+            const relaciones = idsPatologias.map((patologiaId) => ({
+              ejercicioId: +id,
+              patologiaId,
+            }));
+            await prisma.patologiaEjercicio.createMany({
+              data: relaciones,
+            });
+          }
         }
 
         return ejercicio;

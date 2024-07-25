@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { fileURLToPath } from 'url';
-import { dirname, join, basename } from 'path';
-import fs from 'fs';
+import { fileURLToPath } from "url";
+import { dirname, join, basename } from "path";
+import fs from "fs";
 
 // Obtén el nombre del archivo y el directorio actual
 const filename = fileURLToPath(import.meta.url);
@@ -67,7 +67,7 @@ export class InformacionModel {
       const oldInformacion = await prisma.informacion.findUnique({
         where: { id: +id },
       });
-      
+
       // Inicia una transacción
       const result = await prisma.$transaction(async (prisma) => {
         // Actualiza la información
@@ -78,28 +78,37 @@ export class InformacionModel {
           data: informacionData,
         });
 
-        // Elimina las relaciones antiguas
-        await prisma.patologiaInformacion.deleteMany({
-          where: {
+        // Si idsPatologias está presente y no está vacío
+        if (idsPatologias && idsPatologias.length > 0) {
+          // Elimina las relaciones antiguas
+          await prisma.patologiaInformacion.deleteMany({
+            where: {
+              informacionId: +id,
+            },
+          });
+
+          // Inserta las nuevas relaciones
+          const relaciones = idsPatologias.map((patologiaId) => ({
             informacionId: +id,
-          },
-        });
-
-        // Inserta las nuevas relaciones
-        const relaciones = idsPatologias.map((patologiaId) => ({
-          informacionId: +id,
-          patologiaId,
-        }));
-        await prisma.patologiaInformacion.createMany({
-          data: relaciones,
-        });
-
+            patologiaId,
+          }));
+          await prisma.patologiaInformacion.createMany({
+            data: relaciones,
+          });
+        }
         return informacion;
       });
-      
+
       // Después de actualizar, elimina el archivo antiguo si hay una nueva URL
-      if (informacionData.urlVideo && oldInformacion.urlVideo !== informacionData.urlVideo) {
-        const oldFilePath = join(dirnamex, '../uploads', basename(oldInformacion.urlVideo));
+      if (
+        informacionData.urlVideo &&
+        oldInformacion.urlVideo !== informacionData.urlVideo
+      ) {
+        const oldFilePath = join(
+          dirnamex,
+          "../uploads",
+          basename(oldInformacion.urlVideo)
+        );
         fs.unlink(oldFilePath, (err) => {
           if (err) {
             console.error(`Error al eliminar el archivo antiguo: ${err}`);
@@ -108,7 +117,6 @@ export class InformacionModel {
           }
         });
       }
-      
 
       return result;
     } catch (error) {
@@ -123,7 +131,7 @@ export class InformacionModel {
       const { idsPatologias, ...informacionData } = dataInformacion;
 
       const newInformacion = await prisma.informacion.create({
-        data: {   
+        data: {
           ...informacionData,
           patologia: {
             create:
