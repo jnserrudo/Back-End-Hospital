@@ -68,7 +68,9 @@ export class EjercicioController {
 
   static disable = async (req, res) => {
     const {id}=req.params
+    console.log("req.params",req.params,id)
     const result = await EjercicioModel.disable(id);
+    console.log(result)
     if (!result ?.err) {
       res.json(result );
     } else {

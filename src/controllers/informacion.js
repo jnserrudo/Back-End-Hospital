@@ -21,8 +21,9 @@ export class InformacionController {
   };
 
   static updateInformacion = async (req, res) => {
-    let id = req.params.dni;
+    let id = req.params.id;
     const informacion = await InformacionModel.updateInformacion(id, req.body);
+    console.log(informacion)
     if (!informacion?.err) {
       res.json(informacion);
     } else {
@@ -32,6 +33,7 @@ export class InformacionController {
 
   static addInformacion = async (req, res) => {
     const newInformacion = await InformacionModel.addInformacion(req.body);
+    console.log(newInformacion)
     if (!newInformacion?.err) {
       res.json(newInformacion);
     } else {
@@ -67,7 +69,9 @@ export class InformacionController {
 
   static disable = async (req, res) => {
     const {id}=req.params
+    console.log(id)
     const result = await InformacionModel.disable(id);
+    console.log(result)
     if (!result ?.err) {
       res.json(result );
     } else {

@@ -91,7 +91,7 @@ model Ejercicio {
   id          Int    @id @default(autoincrement())
   nombre      String
   descripcion String
-  urlVideo    String // Nuevo campo obligatorio para la URL del video
+  urlVideo    String   @db.Text // Nuevo campo obligatorio para la URL del video
 
   patologia PatologiaEjercicio[]
     habilitado Int @default(1)
@@ -143,7 +143,7 @@ model PatologiaEjercicio {
 model Informacion {
   id          Int    @id @default(autoincrement())
   nombre      String
-  urlVideo    String // Reemplaza url por urlVideo
+  urlVideo    String   @db.Text // Reemplaza url por urlVideo
   descripcion String // Nuevo campo para la descripción            // Nuevo campo obligatorio para la URL del video
   habilitado Int @default(1)
 

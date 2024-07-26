@@ -129,7 +129,7 @@ export class InformacionModel {
   static addInformacion = async (dataInformacion) => {
     try {
       const { idsPatologias, ...informacionData } = dataInformacion;
-
+      console.log(dataInformacion)
       const newInformacion = await prisma.informacion.create({
         data: {
           ...informacionData,
