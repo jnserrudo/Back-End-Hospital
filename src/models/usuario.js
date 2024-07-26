@@ -182,6 +182,7 @@ export class UsuarioModel {
     try {
       const { idRol, idsPatologias, password, email, ...restoDataUsuario } = dataUsuario;
   
+      console.log(dataUsuario)
       // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(password, 10);
   

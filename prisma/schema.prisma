@@ -42,10 +42,10 @@ model Receta {
   calorias     String
   tiempo       String
   urlFoto      String
-  ingredientes String
-  preparacion  String
+  ingredientes String @db.Text
+  preparacion  String @db.Text
 
-  tipsSaludables         String @default("")
+  tipsSaludables         String @default("") 
   composicionNutricional String @default("")
   habilitado Int @default(1)
 
@@ -78,7 +78,7 @@ model Paciente {
 model Patologia {
   id          Int                    @id @default(autoincrement())
   nombre      String
-  descripcion String
+  descripcion String @db.Text
   paciente    PatologiaPaciente[]
   recetas     PatologiaReceta[]
   informacion PatologiaInformacion[]
@@ -90,7 +90,7 @@ model Patologia {
 model Ejercicio {
   id          Int    @id @default(autoincrement())
   nombre      String
-  descripcion String
+  descripcion String   @db.Text
   urlVideo    String   @db.Text // Nuevo campo obligatorio para la URL del video
 
   patologia PatologiaEjercicio[]
@@ -144,7 +144,7 @@ model Informacion {
   id          Int    @id @default(autoincrement())
   nombre      String
   urlVideo    String   @db.Text // Reemplaza url por urlVideo
-  descripcion String // Nuevo campo para la descripción            // Nuevo campo obligatorio para la URL del video
+  descripcion String   @db.Text// Nuevo campo para la descripción            // Nuevo campo obligatorio para la URL del video
   habilitado Int @default(1)
 
   patologia PatologiaInformacion[]
