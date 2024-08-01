@@ -37,7 +37,7 @@ export class InformacionController {
     if (!newInformacion?.err) {
       res.json(newInformacion);
     } else {
-      res.json({ message: "Informacion no encontrado" }).status(404);
+      res.json({ message: "No se pudo agregar la informacion" }).status(404);
     }
   };
 

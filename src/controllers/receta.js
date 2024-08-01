@@ -84,6 +84,7 @@ export class RecetaController {
 
   static addReceta = async (req, res) => {
     const newReceta = await RecetaModel.addReceta(req.body);
+    console.log(newReceta)
     if (!newReceta?.err) {
       res.json(newReceta);
     } else {

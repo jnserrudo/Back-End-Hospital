@@ -45,8 +45,8 @@ model Receta {
   ingredientes String @db.Text
   preparacion  String @db.Text
 
-  tipsSaludables         String @default("") 
-  composicionNutricional String @default("")
+  tipsSaludables         String  @db.Text 
+  composicionNutricional String @db.Text 
   habilitado Int @default(1)
 
   patologia PatologiaReceta[]

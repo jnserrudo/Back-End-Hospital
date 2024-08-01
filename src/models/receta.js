@@ -220,11 +220,23 @@ export class RecetaModel {
     console.log("dataReceta: ", dataReceta);
 
     try {
-      const { idsPatologias, ...recetaData } = dataReceta;
+      const {
+        idsPatologias,
+        tipsSaludables,
+        composicionNutricional,
+        ...recetaData
+      } = dataReceta;
+
+      // Verifica y ajusta los valores de los campos opcionales
+      const recetaDataAdjusted = {
+        ...recetaData,
+        tipsSaludables: tipsSaludables || null,
+        composicionNutricional: composicionNutricional || null,
+      };
 
       const newReceta = await prisma.receta.create({
         data: {
-          ...recetaData,
+          ...recetaDataAdjusted,
           patologia: {
             create:
               idsPatologias?.map((id) => ({
