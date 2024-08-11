@@ -68,27 +68,31 @@ const front=(req, res) => {
   // Middleware para analizar JSON
   app.use(json());
   
-  /* 
-  app.use('/', async()=> {
-    try {
-      await prisma.$connect();
-      console.log('Conexión exitosa a la base de datos');
-      } catch (error) {
-        console.error('Error al conectar con la base de datos:', error);
-        } finally {
-          await prisma.$disconnect();
-          }
-          } ); */
           // Rutas de la aplicación
           
-
-
-
           
 app.use('/api', router);
 
-
+// Servir el frontend en la ruta raíz
 app.get("/", front);
+
+// Manejar todas las demás rutas para React
+app.get('*', front);
+
+/**
+ * ¿Por qué se necesitan ambas?
+Ruta raíz ("/"): Específicamente para cuando un usuario accede a la página principal. Aunque podrías depender
+solo de app.get('*', front);, tener app.get("/", front); puede ser útil para optimización o claridad en el código.
+
+Rutas no reconocidas ("*"): Captura todas las demás rutas, garantizando que el servidor siempre sirva index.html
+ para que React pueda manejar la navegación. Es esencial para aplicaciones SPA (Single Page Application), donde 
+ las rutas son manejadas por el frontend y no por el servidor.
+
+En resumen, mientras que app.get("/", front); se asegura de que la ruta raíz funcione correctamente, 
+app.get('*', front); garantiza que todas las demás rutas también sirvan la aplicación React, permitiendo que 
+React Router maneje la navegación.
+ * 
+ */
 
 // Manejo de errores CORS
 app.use((err, req, res, next) => {
