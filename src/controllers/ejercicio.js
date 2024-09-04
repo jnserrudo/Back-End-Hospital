@@ -56,7 +56,27 @@ export class EjercicioController {
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Ejercicio no encontrado" }).status(404);
+      res.json({ message: "Patologias no encontrado" }).status(404);
+    }
+  };
+
+  static getCategoriaToEjercicioAdd = async (req, res) => {
+    console.log("controller getCategoriaToEjercicioAdd");
+    const ejercicio = await EjercicioModel.getCategoriaToEjercicioAdd();
+    if (!ejercicio?.err) {
+      res.json(ejercicio);
+    } else {
+      res.json({ message: "Categorias no encontradas" }).status(404);
+    }
+  };
+
+  static getCategoriaToEjercicioEdit = async (req, res) => {
+    let id = req.params.id;
+    const ejercicio = await EjercicioModel.getCategoriaToEjercicioEdit(id);
+    if (!ejercicio?.err) {
+      res.json(ejercicio);
+    } else {
+      res.json({ message: "Categorias no encontrado" }).status(404);
     }
   };
 

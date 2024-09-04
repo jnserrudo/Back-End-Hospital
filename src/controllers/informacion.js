@@ -61,6 +61,29 @@ export class InformacionController {
     }
   };
 
+  static getCategoriaToInformacionAdd = async (req, res) => {
+    console.log("controller getCategoriaToInformacionAdd");
+    const categoria = await InformacionModel.getCategoriaToInformacionAdd();
+    if (!categoria?.err) {
+      res.json(categoria);
+    } else {
+      res.json({ message: "Categoria no encontradas" }).status(404);
+    }
+  };
+
+  static getCategoriaToInformacionEdit = async (req, res) => {
+    let id = req.params.id;
+    const categoria = await InformacionModel.getCategoriaToInformacionEdit(id);
+    if (!categoria?.err) {
+      res.json(categoria);
+    } else {
+      res.json({ message: "Categorias no encontradas" }).status(404);
+    }
+  };
+
+
+
+
   static uploadVideo = async (req, res) => {
     console.log(req.file);
     const fileUrl = `/uploads/${req.file.filename}`;

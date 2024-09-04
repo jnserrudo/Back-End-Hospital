@@ -74,6 +74,10 @@ export class PacienteModel{
             .flatMap((patologiaPaciente) => patologiaPaciente.patologia.informacion)
             .map((patologiaInformacion) => patologiaInformacion.informacion);
       
+          //VAMOS A CAMBIAR LOS FILTROS, AHORA SE MOSTRARAN TODAS, SIN IMPORTAR LAS PATOLOGIAS, SIMPLEMENTE
+          //LLAMARAN AL GETALL
+
+          
           return informaciones;
         } catch (error) {
           return {

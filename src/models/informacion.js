@@ -200,6 +200,56 @@ export class InformacionModel {
     }
   };
 
+
+  static getCategoriaToInformacionAdd = async () => {
+    try {
+      console.log("get categoria to informacion add model");
+      const categoria = await prisma.categoria.findMany();
+      return categoria;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+
+  static getCategoriaToInformacionEdit = async (id) => {
+    try {
+      id = +id;
+
+      // Obtener todas las patologías
+      const todasLasCategorias = await prisma.categoria.findMany();
+
+      // Obtener la categoria y las patologías asociadas
+      const categoria = await prisma.informacion.findUnique({
+        where: { id: id },
+        include: {
+          categoria: {
+            include: {
+              categoria: true,
+            },
+          },
+        },
+      });
+
+      const categoriasAsociadas =
+        informacion?.categoria.map((p) => p.categoria) || [];
+      const categoriasAsociadasIds = new Set(
+        categoriasAsociadas.map((p) => p.id)
+      );
+
+      const categoriasNoAsociadas = todasLasCategorias.filter(
+        (p) => !categoriasAsociadasIds.has(p.id)
+      );
+
+      return { categoriasAsociadas, categoriasNoAsociadas };
+    } catch (error) {
+      return { err: error.message };
+    }
+  };
+
+
+
   static disable = async (id) => {
     try {
       const informacion = await prisma.informacion.update({

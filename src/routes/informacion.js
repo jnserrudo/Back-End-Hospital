@@ -36,6 +36,10 @@ informacionRouter.get('/patologia/add', InformacionController.getPatologiaToInfo
 
 informacionRouter.get('/patologia/edit/:id', InformacionController.getPatologiaToInformacionEdit)
 
+informacionRouter.get('/categoria/add', InformacionController.getCategoriaToInformacionAdd)
+
+informacionRouter.get('/categoria/edit/:id', InformacionController.getCategoriaToInformacionEdit)
+
 
 informacionRouter.post('/',InformacionController.addInformacion)
 

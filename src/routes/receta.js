@@ -35,6 +35,10 @@ recetaRouter.get('/patologia/add', RecetaController.getPatologiaToRecetaAdd)
 
 recetaRouter.get('/patologia/edit/:id', RecetaController.getPatologiaToRecetaEdit)
 
+recetaRouter.get('/categoria/add', RecetaController.getCategoriaToRecetaAdd)
+
+recetaRouter.get('/categoria/edit/:id', RecetaController.getCategoriaToRecetaEdit)
+
 recetaRouter.get('/patologia/:idPatologia', RecetaController.getRecetabyPatologia)
 
 recetaRouter.get('/paciente/:ndocu', RecetaController.getRecetabyPaciente)

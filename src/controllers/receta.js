@@ -41,13 +41,33 @@ export class RecetaController {
     }
   };
 
+  static getCategoriaToRecetaAdd = async (req, res) => {
+    console.log("controller getCategoriaToRecetaAdd");
+    const categoria = await RecetaModel.getCategoriaToRecetaAdd();
+    if (!categoria?.err) {
+      res.json(categoria);
+    } else {
+      res.json({ message: "categorias no encontradas" }).status(404);
+    }
+  };
+
   static getPatologiaToRecetaEdit = async (req, res) => {
     let id = req.params.id;
     const receta = await RecetaModel.getPatologiaToRecetaEdit(id);
     if (!receta?.err) {
       res.json(receta);
     } else {
-      res.json({ message: "Receta no encontrado" }).status(404);
+      res.json({ message: "patologias no encontradas" }).status(404);
+    }
+  };
+
+  static getCategoriaToRecetaEdit = async (req, res) => {
+    let id = req.params.id;
+    const categoria = await RecetaModel.getCategoriaToRecetaEdit(id);
+    if (!categoria?.err) {
+      res.json(categoria);
+    } else {
+      res.json({ message: "categorias no encontradas" }).status(404);
     }
   };
 

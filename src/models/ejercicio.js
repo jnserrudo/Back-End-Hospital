@@ -151,6 +151,7 @@ export class EjercicioModel {
     }
   };
 
+
   static getPatologiaToEjercicioAdd = async () => {
     try {
       console.log("get patologia to ejercicio add model");
@@ -193,6 +194,54 @@ export class EjercicioModel {
       );
 
       return { patologiasAsociadas, patologiasNoAsociadas };
+    } catch (error) {
+      return { err: error.message };
+    }
+  };
+
+  
+  static getCategoriaToEjercicioAdd = async () => {
+    try {
+      console.log("get categoria to ejercicio add model");
+      const categoria = await prisma.categoria.findMany();
+      return categoria;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+
+  static getCategoriaToEjercicioEdit = async (id) => {
+    try {
+      id = +id;
+
+      // Obtener todas las patologías
+      const todasLasCategorias = await prisma.categoria.findMany();
+
+      // Obtener la ejercicio y las patologías asociadas
+      const categoria = await prisma.categoria.findUnique({
+        where: { id: id },
+        include: {
+          categoria: {
+            include: {
+              categoria: true,
+            },
+          },
+        },
+      });
+
+      const categoriasAsociadas =
+        ejercicio?.categoria.map((p) => p.categoria) || [];
+      const categoriasAsociadasIds = new Set(
+        categoriasAsociadas.map((p) => p.id)
+      );
+
+      const categoriasNoAsociadas = todasLasCategorias.filter(
+        (p) => !categoriasAsociadasIds.has(p.id)
+      );
+
+      return { categoriasAsociadas, categoriasNoAsociadas };
     } catch (error) {
       return { err: error.message };
     }

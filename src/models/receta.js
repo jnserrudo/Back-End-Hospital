@@ -45,6 +45,26 @@ export class RecetaModel {
     }
   };
 
+
+  static getCategoriaToRecetaAdd = async () => {
+    try {
+      console.log("get CATEGORIA to receta add model");
+      const categoria = await prisma.categoria.findMany({
+        where: {
+          tipo: 3,
+        },
+      })
+
+      console.log("CATEGORIAS TO RECETA ADD: ", categoria)
+
+      return categoria;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+
   static getPatologiaToRecetaEdit = async (id) => {
     try {
       id = +id;
@@ -79,6 +99,42 @@ export class RecetaModel {
       return { err: error.message };
     }
   };
+
+  static getCategoriaToRecetaEdit = async (id) => {
+    try {
+      id = +id;
+
+      // Obtener todas las patologías
+      const todasLasCategorias = await prisma.categoria.findMany();
+
+      // Obtener la receta y las patologías asociadas
+      const receta = await prisma.receta.findUnique({
+        where: { id: id },
+        include: {
+          categoria: {
+            include: {
+              categoria: true,
+            },
+          },
+        },
+      });
+
+      const categoriasAsociadas =
+        receta?.categoria.map((p) => p.categoria) || [];
+      const categoriasAsociadasIds = new Set(
+        categoriasAsociadas.map((p) => p.id)
+      );
+
+      const categoriasNoAsociadas = todasLasCategorias.filter(
+        (p) => !categoriasAsociadasIds.has(p.id)
+      );
+
+      return { categoriasAsociadas, categoriasNoAsociadas };
+    } catch (error) {
+      return { err: error.message };
+    }
+  };
+
 
   static getRecetabyPatologia = async (idPatologia) => {
     try {

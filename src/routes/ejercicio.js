@@ -38,6 +38,12 @@ ejercicioRouter.get('/patologia/add', EjercicioController.getPatologiaToEjercici
 
 ejercicioRouter.get('/patologia/edit/:id', EjercicioController.getPatologiaToEjercicioEdit)
 
+ejercicioRouter.get('/categoria/add', EjercicioController.getCategoriaToEjercicioAdd)
+
+ejercicioRouter.get('/categoria/edit/:id', EjercicioController.getCategoriaToEjercicioEdit)
+
+
+
 
 ejercicioRouter.post('/',EjercicioController.addEjercicio)
 
