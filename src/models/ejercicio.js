@@ -17,7 +17,23 @@ export class EjercicioModel {
       /* console.log(data)
             const ejercicios=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
-             */ return ejercicio;
+
+
+             */
+      // Usa Promise.all para esperar a que todas las promesas se resuelvan
+      const ejerConcategorias = await Promise.all(
+        ejercicio.map(async (ejer) => {
+          const cat = await this.getCategoriaToEjercicioEdit(ejer.id);
+
+          return {
+            ...ejer,
+            categoriasAsociadas: cat?.categoriasAsociadas,
+          };
+        })
+      );
+      return ejerConcategorias;
+
+      //return ejercicio;
     } catch (error) {
       return {
         err: error,
@@ -60,7 +76,8 @@ export class EjercicioModel {
 
   static updateEjercicio = async (id, ejercicioUpdated) => {
     try {
-      const { idsPatologias, ...ejercicioData } = ejercicioUpdated;
+      const { idsPatologias, idsCategorias, ...ejercicioData } =
+        ejercicioUpdated;
       // Recupera la URL del video antiguo antes de actualizar
       const oldEjercicio = await prisma.ejercicio.findUnique({
         where: { id: +id },
@@ -95,6 +112,26 @@ export class EjercicioModel {
           }
         }
 
+        // Manejo de idsCategorias
+        if (idsCategorias && idsCategorias.length > 0) {
+          // Elimina las relaciones antiguas con categorías
+          await prisma.categoriaEjercicio.deleteMany({
+            where: {
+              ejercicioId: +id,
+            },
+          });
+
+          // Inserta las nuevas relaciones con categorías
+          const relacionesCategorias = idsCategorias.map((categoriaId) => ({
+            ejercicioId: +id,
+            categoriaId,
+          }));
+
+          await prisma.categoriaEjercicio.createMany({
+            data: relacionesCategorias,
+          });
+        }
+
         return ejercicio;
       });
 
@@ -126,7 +163,7 @@ export class EjercicioModel {
 
   static addEjercicio = async (dataEjercicio) => {
     try {
-      const { idsPatologias, ...ejercicioData } = dataEjercicio;
+      const { idsPatologias, idsCategorias, ...ejercicioData } = dataEjercicio;
 
       const newEjercicio = await prisma.ejercicio.create({
         data: {
@@ -135,6 +172,14 @@ export class EjercicioModel {
             create:
               idsPatologias?.map((id) => ({
                 patologia: {
+                  connect: { id },
+                },
+              })) || [],
+          },
+          categoria: {
+            create:
+              idsCategorias?.map((id) => ({
+                categoria: {
                   connect: { id },
                 },
               })) || [],
@@ -150,7 +195,6 @@ export class EjercicioModel {
       };
     }
   };
-
 
   static getPatologiaToEjercicioAdd = async () => {
     try {
@@ -199,11 +243,14 @@ export class EjercicioModel {
     }
   };
 
-  
   static getCategoriaToEjercicioAdd = async () => {
     try {
       console.log("get categoria to ejercicio add model");
-      const categoria = await prisma.categoria.findMany();
+      const categoria = await prisma.categoria.findMany({
+        where: {
+          tipo: 1,
+        },
+      });
       return categoria;
     } catch (error) {
       return {
@@ -217,10 +264,14 @@ export class EjercicioModel {
       id = +id;
 
       // Obtener todas las patologías
-      const todasLasCategorias = await prisma.categoria.findMany();
+      const todasLasCategorias = await prisma.categoria.findMany({
+        where: {
+          tipo: 1,
+        },
+      });
 
       // Obtener la ejercicio y las patologías asociadas
-      const categoria = await prisma.categoria.findUnique({
+      const ejercicio = await prisma.ejercicio.findUnique({
         where: { id: id },
         include: {
           categoria: {

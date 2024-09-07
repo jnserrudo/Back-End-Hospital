@@ -158,7 +158,6 @@ model CategoriaInformacion {
   informacion   Informacion @relation(fields: [informacionId], references: [id])
   informacionId Int
   categoria     Categoria   @relation(fields: [categoriaId], references: [id])
-  patologiaId   Int
   habilitado    Int         @default(1)
   categoriaId   Int
 }
@@ -168,7 +167,6 @@ model CategoriaEjercicio {
   ejercicio   Ejercicio @relation(fields: [ejercicioId], references: [id])
   ejercicioId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
-  patologiaId Int
   habilitado  Int       @default(1)
   categoriaId Int
 }

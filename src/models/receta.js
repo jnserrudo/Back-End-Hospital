@@ -45,7 +45,6 @@ export class RecetaModel {
     }
   };
 
-
   static getCategoriaToRecetaAdd = async () => {
     try {
       console.log("get CATEGORIA to receta add model");
@@ -53,9 +52,9 @@ export class RecetaModel {
         where: {
           tipo: 3,
         },
-      })
+      });
 
-      console.log("CATEGORIAS TO RECETA ADD: ", categoria)
+      console.log("CATEGORIAS TO RECETA ADD: ", categoria);
 
       return categoria;
     } catch (error) {
@@ -105,7 +104,11 @@ export class RecetaModel {
       id = +id;
 
       // Obtener todas las patologías
-      const todasLasCategorias = await prisma.categoria.findMany();
+      const todasLasCategorias = await prisma.categoria.findMany({
+        where: {
+          tipo: 3,
+        },
+      });
 
       // Obtener la receta y las patologías asociadas
       const receta = await prisma.receta.findUnique({
@@ -134,7 +137,6 @@ export class RecetaModel {
       return { err: error.message };
     }
   };
-
 
   static getRecetabyPatologia = async (idPatologia) => {
     try {
@@ -231,7 +233,7 @@ export class RecetaModel {
 
   static updateReceta = async (id, recetaUpdated) => {
     try {
-      const { idsPatologias, ...recetaData } = recetaUpdated;
+      const { idsPatologias, idsCategorias, ...recetaData } = recetaUpdated;
 
       // Inicia una transacción
       const result = await prisma.$transaction(async (prisma) => {
@@ -261,6 +263,26 @@ export class RecetaModel {
             data: relaciones,
           });
         }
+        // Si idsCategorias está presente y no está vacío
+        if (idsCategorias && idsCategorias.length > 0) {
+          // Elimina las relaciones antiguas con categorias
+          await prisma.categoriaReceta.deleteMany({
+            where: {
+              recetaId: +id,
+            },
+          });
+
+          // Inserta las nuevas relaciones con categorias
+          const relacionesCategorias = idsCategorias.map((categoriaId) => ({
+            recetaId: +id,
+            categoriaId,
+          }));
+
+          await prisma.categoriaReceta.createMany({
+            data: relacionesCategorias,
+          });
+        }
+
         return receta;
       });
 
@@ -278,6 +300,7 @@ export class RecetaModel {
     try {
       const {
         idsPatologias,
+        idsCategorias,
         tipsSaludables,
         composicionNutricional,
         ...recetaData
@@ -297,6 +320,14 @@ export class RecetaModel {
             create:
               idsPatologias?.map((id) => ({
                 patologia: {
+                  connect: { id },
+                },
+              })) || [],
+          },
+          categoria: {
+            create:
+              idsCategorias?.map((id) => ({
+                categoria: {
                   connect: { id },
                 },
               })) || [],

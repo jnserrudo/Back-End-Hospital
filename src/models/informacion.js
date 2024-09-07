@@ -19,7 +19,21 @@ export class InformacionModel {
       /* console.log(data)
             const informacions=await data.json()
             NO ES NECESARIO CONVERTIR A JSON
-             */ return informacion;
+             */
+      // Usa Promise.all para esperar a que todas las promesas se resuelvan
+      const infoConcategorias = await Promise.all(
+        informacion.map(async (info) => {
+          const cat = await this.getCategoriaToInformacionEdit(info.id);
+
+          return{
+            ...info,
+            categoriasAsociadas:cat?.categoriasAsociadas
+          }
+
+        })
+      );
+      return infoConcategorias
+
     } catch (error) {
       return {
         err: error,
@@ -62,7 +76,8 @@ export class InformacionModel {
 
   static updateInformacion = async (id, informacionUpdated) => {
     try {
-      const { idsPatologias, ...informacionData } = informacionUpdated;
+      const { idsPatologias, idsCategorias, ...informacionData } =
+        informacionUpdated;
 
       const oldInformacion = await prisma.informacion.findUnique({
         where: { id: +id },
@@ -96,6 +111,27 @@ export class InformacionModel {
             data: relaciones,
           });
         }
+
+        // Si idsCategorias está presente y no está vacío
+        if (idsCategorias && idsCategorias.length > 0) {
+          // Elimina las relaciones antiguas con categorias
+          await prisma.categoriaInformacion.deleteMany({
+            where: {
+              informacionId: +id,
+            },
+          });
+
+          // Inserta las nuevas relaciones con categorias
+          const relacionesCategorias = idsCategorias.map((categoriaId) => ({
+            informacionId: +id,
+            categoriaId,
+          }));
+
+          await prisma.categoriaInformacion.createMany({
+            data: relacionesCategorias,
+          });
+        }
+
         return informacion;
       });
 
@@ -128,8 +164,9 @@ export class InformacionModel {
 
   static addInformacion = async (dataInformacion) => {
     try {
-      const { idsPatologias, ...informacionData } = dataInformacion;
-      console.log(dataInformacion)
+      const { idsPatologias, idsCategorias, ...informacionData } =
+        dataInformacion;
+      console.log(dataInformacion);
       const newInformacion = await prisma.informacion.create({
         data: {
           ...informacionData,
@@ -137,6 +174,14 @@ export class InformacionModel {
             create:
               idsPatologias?.map((id) => ({
                 patologia: {
+                  connect: { id },
+                },
+              })) || [],
+          },
+          categoria: {
+            create:
+              idsCategorias?.map((id) => ({
+                categoria: {
                   connect: { id },
                 },
               })) || [],
@@ -200,11 +245,14 @@ export class InformacionModel {
     }
   };
 
-
   static getCategoriaToInformacionAdd = async () => {
     try {
       console.log("get categoria to informacion add model");
-      const categoria = await prisma.categoria.findMany();
+      const categoria = await prisma.categoria.findMany({
+        where: {
+          tipo: 2,
+        },
+      });
       return categoria;
     } catch (error) {
       return {
@@ -218,10 +266,14 @@ export class InformacionModel {
       id = +id;
 
       // Obtener todas las patologías
-      const todasLasCategorias = await prisma.categoria.findMany();
+      const todasLasCategorias = await prisma.categoria.findMany({
+        where: {
+          tipo: 2,
+        },
+      });
 
-      // Obtener la categoria y las patologías asociadas
-      const categoria = await prisma.informacion.findUnique({
+      // Obtener la categoria y las categorias asociadas
+      const informacion = await prisma.informacion.findUnique({
         where: { id: id },
         include: {
           categoria: {
@@ -247,8 +299,6 @@ export class InformacionModel {
       return { err: error.message };
     }
   };
-
-
 
   static disable = async (id) => {
     try {
