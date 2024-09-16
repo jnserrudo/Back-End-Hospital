@@ -10,6 +10,21 @@ export class EjercicioController {
     }
   };
 
+
+  static getEjercicioFiltro = async (req, res) => {
+    
+    const {idsPatologias,idsCategorias}=req.body
+    console.log(idsPatologias,idsCategorias)
+    const ejercicios = await EjercicioModel.getEjercicioFiltro(idsPatologias,idsCategorias);
+
+    if (!ejercicios?.err) {
+      res.json(ejercicios);
+    } else {
+      res.json({ message: "Ejercicios no encontrados" }).status(404);
+    }
+  };
+
+
   static getEjerciciobyId = async (req, res) => {
     let id = req.params.id;
     const ejercicio = await EjercicioModel.getEjerciciobyId(id);

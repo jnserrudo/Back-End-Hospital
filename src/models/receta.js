@@ -16,7 +16,55 @@ export class RecetaModel {
       };
     }
   };
-
+  static getRecetaFiltro = async (idsPatologias, idsCategorias) => {
+    try {
+      // Filtrar recetas habilitadas y por patologías/categorías seleccionadas
+      const recetas = await prisma.receta.findMany({
+        where: {
+          habilitado: 1,
+          OR: [
+            idsPatologias.length > 0
+              ? {
+                  patologia: {
+                    some: {
+                      patologiaId: { in: idsPatologias },
+                    },
+                  },
+                }
+              : undefined,
+            idsCategorias.length > 0
+              ? {
+                  categoria: {
+                    some: {
+                      categoriaId: { in: idsCategorias },
+                    },
+                  },
+                }
+              : undefined,
+          ].filter(Boolean), // Filtra los undefined si no hay categorías o patologías seleccionadas
+        },
+      });
+  
+      // Obtener las categorías asociadas a cada receta
+      const recetasConCategorias = await Promise.all(
+        recetas.map(async (receta) => {
+          const cat = await this.getCategoriaToRecetaEdit(receta.id);
+  
+          return {
+            ...receta,
+            categoriasAsociadas: cat?.categoriasAsociadas,
+          };
+        })
+      );
+  
+      return recetasConCategorias;
+    } catch (error) {
+      return {
+        err: error.message,
+      };
+    }
+  };
+  
   static getRecetabyId = async (id) => {
     try {
       id = +id;

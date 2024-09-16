@@ -26,6 +26,8 @@ export const informacionRouter=express.Router()
 
 informacionRouter.get('/', InformacionController.getAll)
 
+informacionRouter.post('/filtro', InformacionController.getInfoFiltro)
+
 informacionRouter.get('/:id', InformacionController.getInformacionbyId)
 
 informacionRouter.put('/:id', InformacionController.updateInformacion)

@@ -10,6 +10,19 @@ export class InformacionController {
     }
   };
 
+  static getInfoFiltro = async (req, res) => {
+    
+    const {idsPatologias,idsCategorias}=req.body
+    console.log(idsPatologias,idsCategorias)
+    const informacions = await InformacionModel.getInfoFiltro(idsPatologias,idsCategorias);
+
+    if (!informacions?.err) {
+      res.json(informacions);
+    } else {
+      res.json({ message: "Informacions no encontrados" }).status(404);
+    }
+  };
+
   static getInformacionbyId = async (req, res) => {
     let id = req.params.id;
     const informacion = await InformacionModel.getInformacionbyId(id);

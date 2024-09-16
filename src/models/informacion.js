@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { fileURLToPath } from "url";
 import { dirname, join, basename } from "path";
 import fs from "fs";
+import { info } from "console";
 
 // Obtén el nombre del archivo y el directorio actual
 const filename = fileURLToPath(import.meta.url);
@@ -40,6 +41,58 @@ export class InformacionModel {
       };
     }
   };
+
+  static getInfoFiltro = async (idsPatologias, idsCategorias) => {
+    try {
+      // Filtramos por habilitado y las patologías/categorías seleccionadas
+      const informacion = await prisma.informacion.findMany({
+        where: {
+          habilitado: 1,
+          OR: [
+            idsPatologias.length > 0
+              ? {
+                  patologia: {
+                    some: {
+                      patologiaId: { in: idsPatologias },
+                    },
+                  },
+                }
+              : undefined,
+            idsCategorias.length > 0
+              ? {
+                  categoria: {
+                    some: {
+                      categoriaId: { in: idsCategorias },
+                    },
+                  },
+                }
+              : undefined,
+          ].filter(Boolean), // Filtramos los undefined si no hay categorías o patologías seleccionadas
+        },
+      });
+  
+      console.log("informacion filtro",informacion)
+
+      // Mapeamos las informaciones para obtener las categorías asociadas
+      const infoConcategorias = await Promise.all(
+        informacion.map(async (info) => {
+          const cat = await this.getCategoriaToInformacionEdit(info.id);
+  
+          return {
+            ...info,
+            categoriasAsociadas: cat?.categoriasAsociadas,
+          };
+        })
+      );
+  
+      return infoConcategorias;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+  
 
   static getInformacionbyId = async (id) => {
     try {

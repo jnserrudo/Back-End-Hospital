@@ -11,6 +11,19 @@ export class RecetaController {
     }
   };
 
+  static getRecetaFiltro = async (req, res) => {
+    
+    const {idsPatologias,idsCategorias}=req.body
+    console.log(idsPatologias,idsCategorias)
+    const recetas = await RecetaModel.getRecetaFiltro(idsPatologias,idsCategorias);
+
+    if (!recetas?.err) {
+      res.json(recetas);
+    } else {
+      res.json({ message: "Recetas no encontradas" }).status(404);
+    }
+  };
+
   static getRecetabyId = async (req, res) => {
     console.log("controller getRecetabyId");
 

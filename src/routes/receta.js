@@ -26,6 +26,8 @@ export const recetaRouter=express.Router()
 
 recetaRouter.get('/', RecetaController.getAll)
 
+recetaRouter.post('/filtro', RecetaController.getRecetaFiltro)
+
 recetaRouter.get('/:id', RecetaController.getRecetabyId)
 
 recetaRouter.post('/upload/files',upload.single('file'), RecetaController.uploadFiles)

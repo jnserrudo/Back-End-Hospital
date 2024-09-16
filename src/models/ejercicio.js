@@ -41,6 +41,57 @@ export class EjercicioModel {
     }
   };
 
+
+  static getEjercicioFiltro = async (idsPatologias, idsCategorias) => {
+    try {
+      // Filtramos por habilitado y las patologías/categorías seleccionadas
+      const ejercicios = await prisma.ejercicio.findMany({
+        where: {
+          habilitado: 1,
+          OR: [
+            idsPatologias.length > 0
+              ? {
+                  patologia: {
+                    some: {
+                      patologiaId: { in: idsPatologias },
+                    },
+                  },
+                }
+              : undefined,
+            idsCategorias.length > 0
+              ? {
+                  categoria: {
+                    some: {
+                      categoriaId: { in: idsCategorias },
+                    },
+                  },
+                }
+              : undefined,
+          ].filter(Boolean), // Filtramos los undefined si no hay categorías o patologías seleccionadas
+        },
+      });
+  
+      // Mapeamos los ejercicios para obtener las categorías asociadas
+      const ejerciciosConCategorias = await Promise.all(
+        ejercicios.map(async (ejercicio) => {
+          const cat = await this.getCategoriaToEjercicioEdit(ejercicio.id);
+  
+          return {
+            ...ejercicio,
+            categoriasAsociadas: cat?.categoriasAsociadas,
+          };
+        })
+      );
+  
+      return ejerciciosConCategorias;
+    } catch (error) {
+      return {
+        err: error,
+      };
+    }
+  };
+  
+
   static getEjerciciobyId = async (id) => {
     try {
       id = +id;

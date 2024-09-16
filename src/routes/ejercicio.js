@@ -28,6 +28,8 @@ export const ejercicioRouter=express.Router()
 
 ejercicioRouter.get('/', EjercicioController.getAll)
 
+ejercicioRouter.post('/filtro', EjercicioController.getEjercicioFiltro)
+
 ejercicioRouter.get('/:id', EjercicioController.getEjerciciobyId)
 
 ejercicioRouter.put('/:id', EjercicioController.updateEjercicio)
