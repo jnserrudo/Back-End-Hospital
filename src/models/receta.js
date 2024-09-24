@@ -8,6 +8,14 @@ export class RecetaModel {
         where: {
           habilitado: 1,
         },
+        include: {
+          patologia: {
+            // Incluir el array de PatologiaReceta
+            include: {
+              patologia: true, // Incluir la información de las Patologias
+            },
+          },
+        },
       });
       return recetas;
     } catch (error) {
@@ -44,19 +52,19 @@ export class RecetaModel {
           ].filter(Boolean), // Filtra los undefined si no hay categorías o patologías seleccionadas
         },
       });
-  
+
       // Obtener las categorías asociadas a cada receta
       const recetasConCategorias = await Promise.all(
         recetas.map(async (receta) => {
           const cat = await this.getCategoriaToRecetaEdit(receta.id);
-  
+
           return {
             ...receta,
             categoriasAsociadas: cat?.categoriasAsociadas,
           };
         })
       );
-  
+
       return recetasConCategorias;
     } catch (error) {
       return {
@@ -64,7 +72,7 @@ export class RecetaModel {
       };
     }
   };
-  
+
   static getRecetabyId = async (id) => {
     try {
       id = +id;
