@@ -16,6 +16,14 @@ export class InformacionModel {
         where: {
           habilitado: 1,
         },
+        include: {
+          patologia: {
+            // Incluir el array de PatologiaReceta
+            include: {
+              patologia: true, // Incluir la información de las Patologias
+            },
+          },
+        },
       });
       /* console.log(data)
             const informacions=await data.json()

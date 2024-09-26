@@ -13,6 +13,14 @@ export class EjercicioModel {
         where: {
           habilitado: 1,
         },
+        include: {
+          patologia: {
+            // Incluir el array de PatologiaReceta
+            include: {
+              patologia: true, // Incluir la información de las Patologias
+            },
+          },
+        },
       });
       /* console.log(data)
             const ejercicios=await data.json()
