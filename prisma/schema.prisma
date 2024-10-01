@@ -17,19 +17,21 @@ model Rol {
 
 // Definición del modelo de Usuarios
 model Usuario {
-  id         Int       @id @default(autoincrement())
-  usuario    String    @default("")
-  dni        Int       @default(0)
-  email      String    @default("")
-  nombre     String
-  blanqueado Int       @default(0)
-  detalle    String    @default("")
-  apellido   String    @default("")
-  password   String // Aquí almacenamos la contraseña, que debería ser encriptada en el backend
-  rol        Rol?      @relation(fields: [idRol], references: [id])
-  idRol      Int?
-  paciente   Paciente?
-  habilitado Int       @default(1)
+  id             Int                    @id @default(autoincrement())
+  usuario        String                 @default("")
+  dni            Int                    @default(0)
+  email          String                 @default("")
+  nombre         String
+  blanqueado     Int                    @default(0)
+  detalle        String                 @default("")
+  apellido       String                 @default("")
+  password       String // Aquí almacenamos la contraseña, que debería ser encriptada en el backend
+  rol            Rol?                   @relation(fields: [idRol], references: [id])
+  idRol          Int?
+  paciente       Paciente?
+  habilitado     Int                    @default(1)
+  // Relación inversa con HabilitacionPaciente
+  habilitaciones HabilitacionPaciente[] // Un usuario puede habilitar o deshabilitar a múltiples pacientes
 }
 
 // Definición del modelo de Recetas
@@ -69,9 +71,28 @@ model Paciente {
 
   idUsuario  Int?     @unique // Nueva columna para la relación con Usuario
   usuario    Usuario? @relation(fields: [idUsuario], references: [id]) // Relación uno a uno con Usuario
-  habilitado Int      @default(1)
+  habilitado Int      @default(0)
 
   patologia PatologiaPaciente[]
+
+  // Relación inversa con HabilitacionPaciente
+  habilitaciones HabilitacionPaciente[] // Un paciente puede ser habilitado/deshabilitado múltiples veces
+}
+
+model HabilitacionPaciente {
+  id        Int      @id @default(autoincrement())
+  motivo    String   @db.Text
+  fechaHora DateTime @default(now())
+  tipo      String // 'habilitacion' o 'deshabilitacion'
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId Int // Usuario que realizó la acción
+
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+  pacienteId Int // Paciente habilitado o deshabilitado
+
+  // Esta tabla también sigue el mismo patrón de habilitación para futuras expansiones
+  habilitado Int @default(1)
 }
 
 // Definición del modelo de Patologias

@@ -187,7 +187,7 @@ export class UsuarioModel {
       const hashedPassword = await bcrypt.hash(password, 10);
   
       const result = await prisma.$transaction(async (prisma) => {
-        const newUsuario = await prisma.usuario.create({
+        let newUsuario = await prisma.usuario.create({
           data: {
             ...restoDataUsuario,
             email: email,

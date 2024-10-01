@@ -6,7 +6,13 @@ export const pacienteRouter=express.Router()
 
 pacienteRouter.get('/', PacienteController.getAll)
 
-pacienteRouter.get('/:dni', PacienteController.getPacientebyDni)
+//pacienteRouter.get('/:dni', PacienteController.getPacientebyDni)
+
+pacienteRouter.get('/:id', PacienteController.getPacientebyId)
+
+pacienteRouter.put('/deshabilitar', PacienteController.DeshabilitarPaciente)
+
+pacienteRouter.put('/habilitar', PacienteController.HabilitarPaciente)
 
 pacienteRouter.get('/informacion/patologias/:idUsuario', PacienteController.getInformacionxPaciente)
 

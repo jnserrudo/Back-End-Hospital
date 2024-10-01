@@ -2,6 +2,7 @@ import { PacienteModel } from "../models/paciente.js"
 
 export class PacienteController{
     static getAll=async(req,res)=>{
+        console.log("paciente get all controller")
         const pacientes=await PacienteModel.getAll()
         if(!pacientes?.err){
             res.json(pacientes)
@@ -19,6 +20,37 @@ export class PacienteController{
             res.json({message:"Paciente no encontrado"}).status(404)
         }
     }
+
+    static getPacientebyId=async(req,res)=>{
+        let id=req.params.id
+        const paciente=await PacienteModel.getPacientebyId(id)
+        if(!paciente?.err){
+            res.json(paciente)
+        }else{
+            res.json({message:"Paciente no encontrado"}).status(404)
+        }
+    }
+
+    static HabilitarPaciente=async(req,res)=>{
+        let {pacienteId, usuarioId, motivo}=req.body
+        const paciente=await PacienteModel.HabilitarPaciente(pacienteId, usuarioId, motivo)
+        if(!paciente?.err){
+            res.json(paciente)
+        }else{
+            res.json({message:"Paciente no encontrado"}).status(404)
+        }
+    }
+
+    static DeshabilitarPaciente=async(req,res)=>{
+        let {pacienteId, usuarioId, motivo}=req.body
+        const paciente=await PacienteModel.DeshabilitarPaciente(pacienteId, usuarioId, motivo)
+        if(!paciente?.err){
+            res.json(paciente)
+        }else{
+            res.json({message:"Paciente no encontrado"}).status(404)
+        }
+    }
+
     static getInformacionxPaciente=async(req,res)=>{
         let idUsuario=req.params.idUsuario
         const informacion=await PacienteModel.getInformacionxPaciente(idUsuario)
