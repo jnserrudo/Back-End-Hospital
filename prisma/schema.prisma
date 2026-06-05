@@ -32,6 +32,7 @@ model Usuario {
   habilitado     Int                    @default(1)
   // Relación inversa con HabilitacionPaciente
   habilitaciones HabilitacionPaciente[] // Un usuario puede habilitar o deshabilitar a múltiples pacientes
+  autoevaluacionesRecibidas Autoevaluacion[] // Autoevaluaciones enviadas a este profesional
 }
 
 // Definición del modelo de Recetas
@@ -77,6 +78,9 @@ model Paciente {
 
   // Relación inversa con HabilitacionPaciente
   habilitaciones HabilitacionPaciente[] // Un paciente puede ser habilitado/deshabilitado múltiples veces
+  
+  // Relación con Autoevaluaciones
+  autoevaluaciones Autoevaluacion[]
 }
 
 model HabilitacionPaciente {
@@ -104,6 +108,7 @@ model Patologia {
   recetas     PatologiaReceta[]
   informacion PatologiaInformacion[]
   ejercicio   PatologiaEjercicio[]
+  eventos     EventoCalendario[]     // Relación con eventos del calendario
   habilitado  Int                    @default(1)
 }
 
@@ -119,13 +124,17 @@ model Categoria {
 }
 
 model Ejercicio {
-  id          Int                  @id @default(autoincrement())
-  nombre      String
-  descripcion String               @db.Text
-  urlVideo    String               @db.Text // Nuevo campo obligatorio para la URL del video
-  categoria   CategoriaEjercicio[]
-  patologia   PatologiaEjercicio[]
-  habilitado  Int                  @default(1)
+  id                 Int                  @id @default(autoincrement())
+  nombre             String
+  descripcion        String               @db.Text
+  urlVideo           String               @db.Text // URL del video
+  urlInfografia      String?              @db.Text // URL de infografía (opcional)
+  tipoAlmacenamiento String               @default("local") // 'local' o 'externa'
+  tipoContenido      String               @default("video") // 'video', 'infografia', 'ambos'
+  categoria          CategoriaEjercicio[]
+  patologia          PatologiaEjercicio[]
+  habilitado         Int                  @default(1)
+  autoevaluaciones   Autoevaluacion[]     // Relación inversa con autoevaluaciones
 }
 
 // Definición de la entidad de unión PatologiaPaciente
@@ -194,11 +203,80 @@ model CategoriaEjercicio {
 
 // Definición del modelo de Informacion
 model Informacion {
-  id          Int                    @id @default(autoincrement())
-  nombre      String
-  urlVideo    String                 @db.Text // Reemplaza url por urlVideo
-  descripcion String                 @db.Text // Nuevo campo para la descripción            // Nuevo campo obligatorio para la URL del video
-  habilitado  Int                    @default(1)
-  categoria   CategoriaInformacion[]
-  patologia   PatologiaInformacion[]
+  id                 Int                    @id @default(autoincrement())
+  nombre             String
+  urlVideo           String                 @db.Text // URL del video
+  urlInfografia      String?                @db.Text // URL de infografía (opcional)
+  tipoAlmacenamiento String                 @default("local") // 'local' o 'externa'
+  tipoContenido      String                 @default("video") // 'video', 'infografia', 'ambos'
+  descripcion        String                 @db.Text
+  habilitado         Int                    @default(1)
+  categoria          CategoriaInformacion[]
+  patologia          PatologiaInformacion[]
+}
+
+// Modelo para Infografías de Dietas
+model InfografiaDieta {
+  id                 Int      @id @default(autoincrement())
+  titulo             String
+  descripcion        String   @db.Text
+  tipoAlmacenamiento String   // 'local' o 'externa'
+  urlArchivo         String?  @db.Text // Para archivos locales
+  urlExterna         String?  @db.Text // Para URLs externas
+  categoria          String   // 'vegetariana', 'cetogenica', 'mediterranea', etc.
+  tipoArchivo        String?  // 'imagen', 'pdf'
+  habilitado         Int      @default(1)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Modelo para Eventos del Calendario
+model EventoCalendario {
+  id          Int        @id @default(autoincrement())
+  titulo      String
+  descripcion String     @db.Text
+  fecha       DateTime
+  tipo        String     // 'general', 'patologia', etc.
+  urlImagen   String?    @db.Text
+  habilitado  Int        @default(1)
+  patologiaId Int?
+  patologia   Patologia? @relation(fields: [patologiaId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Modelo para Feedback de Usuarios
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String
+  mensaje   String   @db.Text
+  leido     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// Modelo para Preguntas Frecuentes (FAQ)
+model FAQ {
+  id         Int      @id @default(autoincrement())
+  pregunta   String   @db.Text
+  respuesta  String   @db.Text
+  categoria  String
+  orden      Int      @default(0)
+  habilitado Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Modelo para Autoevaluación de Ejercicios
+model Autoevaluacion {
+  id            Int        @id @default(autoincrement())
+  pacienteId    Int
+  profesionalId Int?
+  ejercicioId   Int?
+  tipo          String     @default("ejercicio") // 'general' o 'ejercicio'
+  respuestas    String     @db.Text // JSON con respuestas
+  createdAt     DateTime   @default(now())
+  paciente      Paciente   @relation(fields: [pacienteId], references: [id])
+  profesional   Usuario?   @relation(fields: [profesionalId], references: [id])
+  ejercicio     Ejercicio? @relation(fields: [ejercicioId], references: [id])
 }

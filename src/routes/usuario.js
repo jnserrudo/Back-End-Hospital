@@ -4,6 +4,7 @@ import { UsuarioController } from "../controllers/usuario.js";
 export const usuarioRouter=express.Router()
 
 usuarioRouter.get('/', UsuarioController.getAll)
+usuarioRouter.get('/profesionales/lista', UsuarioController.getProfesionales)
 
 usuarioRouter.get('/rol/:user', UsuarioController.getRolByUser)
 

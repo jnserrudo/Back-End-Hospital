@@ -247,7 +247,7 @@ export class UsuarioModel {
       console.log("usuarioValidated: ", usuarioValidated, usuarioValidated.id);
       if (usuarioValidated?.id > 0) {
         //usuario validado, devolver token
-        let token = jwt.sign({ usuario }, "ozuna", {
+        let token = jwt.sign({ usuario }, process.env.JWT_SECRET || "ozuna", {
           expiresIn: "30m",
         });
 
@@ -351,5 +351,24 @@ export class UsuarioModel {
       return { err: error.message };
     }
   };
-  
+
+  static getProfesionales = async () => {
+    try {
+      const profesionales = await prisma.usuario.findMany({
+        where: {
+          idRol: 2,
+          habilitado: 1,
+        },
+        select: {
+          id: true,
+          nombre: true,
+          apellido: true,
+          email: true,
+        },
+      });
+      return profesionales;
+    } catch (error) {
+      return { err: error.message };
+    }
+  };
 }

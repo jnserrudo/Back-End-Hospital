@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon app.js",
     "start": "node app.js"
   },
   "repository": {
@@ -22,6 +22,7 @@
   "dependencies": {
     "@getbrevo/brevo": "^2.2.0",
     "@prisma/client": "^5.15.0",
+    "back-end-clinica": "file:",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

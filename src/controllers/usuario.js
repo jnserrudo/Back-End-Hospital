@@ -151,5 +151,16 @@ export class UsuarioController {
     }
   };
 
+  static getProfesionales = async (req, res) => {
+    const profesionales = await UsuarioModel.getProfesionales();
+    if (!profesionales?.err) {
+      res.json(profesionales);
+    } else {
+      res.status(404).json({
+        message: "No se pudieron traer los profesionales",
+        error: profesionales?.err,
+      });
+    }
+  };
 
 }
