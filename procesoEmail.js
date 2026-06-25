@@ -4,7 +4,7 @@ import validator from 'validator';
 dotenv.config();
 
 // Configuración de las credenciales de Gmail
-const userGmail = 'nahugis6@gmail.com';
+const userGmail = process.env.GMAIL_USER || 'nahugis6@gmail.com';
 const passAppGmail = process.env.GMAIL_PASS;
 
 // Configuración del transporter de Nodemailer
