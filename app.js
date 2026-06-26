@@ -31,7 +31,15 @@ const prisma = new PrismaClient();
 const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
   .split(",")
   .map((o) => o.trim())
-  .concat(["http://localhost:3001", "http://localhost:3000", "http://localhost:5173","http://172.19.32.1:3000", "http://172.20.64.1:3000"]);
+  .concat([
+    "http://localhost:3001",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://172.19.32.1:3000",
+    "http://172.20.64.1:3000",
+    "http://195.200.0.39",
+    "https://195.200.0.39"
+  ]);
 
 app.use(
   cors({
