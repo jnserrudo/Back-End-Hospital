@@ -7,7 +7,7 @@ import { dirname } from "path";
 import path from "path"; // Importa el módulo 'path'
 const filename = fileURLToPath(import.meta.url);
 const dirnamex = dirname(filename);
-console.log("filename: ", filename, "dirnamex:", dirnamex);
+// console.log("filename: ", filename, "dirnamex:", dirnamex);
 // Configuración de la aplicación
 const app = express();
 app.disable("x-powered-by");
@@ -63,7 +63,7 @@ const staticPath = path.join(
   dirnamex,
   "../Front-End-Hospital/Front-End-Hospital/dist"
 );
-console.log("Static Path: ", staticPath);
+// console.log("Static Path: ", staticPath);
 
 app.use(express.static(staticPath));
 
@@ -71,7 +71,7 @@ app.use(express.static(staticPath));
 
 const front = (req, res) => {
   const indexPath = path.join(staticPath, "index.html");
-  console.log("Serving index.html from: ", indexPath);
+  // console.log("Serving index.html from: ", indexPath);
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error("Error sending index.html:", err);
@@ -117,7 +117,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-console.log(path.join(dirnamex, "uploads"));
+// console.log(path.join(dirnamex, "uploads"));
 // Servir archivos estáticos
 app.use("/uploads", express.static(path.join(dirnamex, "src", "uploads")));
 
@@ -125,5 +125,5 @@ const PORT = process.env.PORT ?? 1234;
 
 app.get("*", front);
 app.listen(PORT, () => {
-  console.log("servidor escuchando en el puerto  http://localhost:1234");
+  // console.log("servidor escuchando en el puerto  http://localhost:1234");
 });

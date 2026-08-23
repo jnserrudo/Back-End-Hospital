@@ -14,7 +14,7 @@ export class RecetaController {
   static getRecetaFiltro = async (req, res) => {
     
     const {idsPatologias,idsCategorias}=req.body
-    console.log(idsPatologias,idsCategorias)
+    // console.log(idsPatologias,idsCategorias)
     const recetas = await RecetaModel.getRecetaFiltro(idsPatologias,idsCategorias);
 
     if (!recetas?.err) {
@@ -25,12 +25,12 @@ export class RecetaController {
   };
 
   static getRecetabyId = async (req, res) => {
-    console.log("controller getRecetabyId");
+    // console.log("controller getRecetabyId");
 
     let id = req.params.id;
     const receta = await RecetaModel.getRecetabyId(id);
     if (!receta?.err) {
-        console.log(receta)
+        // console.log(receta)
       res.json(receta);
     } else {
       res.json({ message: "Receta no encontrada" }).status(404);
@@ -39,13 +39,13 @@ export class RecetaController {
 
   static uploadFiles = async (req, res) => {
     // Aquí puedes manejar lógica adicional después de que Multer procese el archivo
-    console.log(req.file)
+    // console.log(req.file)
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };
 
   static getPatologiaToRecetaAdd = async (req, res) => {
-    console.log("controller getPatologiaToRecetaAdd");
+    // console.log("controller getPatologiaToRecetaAdd");
     const receta = await RecetaModel.getPatologiaToRecetaAdd();
     if (!receta?.err) {
       res.json(receta);
@@ -55,7 +55,7 @@ export class RecetaController {
   };
 
   static getCategoriaToRecetaAdd = async (req, res) => {
-    console.log("controller getCategoriaToRecetaAdd");
+    // console.log("controller getCategoriaToRecetaAdd");
     const categoria = await RecetaModel.getCategoriaToRecetaAdd();
     if (!categoria?.err) {
       res.json(categoria);
@@ -107,7 +107,7 @@ export class RecetaController {
   static updateReceta = async (req, res) => {
     let id = req.params.id;
     const receta = await RecetaModel.updateReceta(id, req.body);
-    console.log(receta)
+    // console.log(receta)
     if (!receta?.err) {
       res.json(receta);
     } else {
@@ -117,7 +117,7 @@ export class RecetaController {
 
   static addReceta = async (req, res) => {
     const newReceta = await RecetaModel.addReceta(req.body);
-    console.log(newReceta)
+    // console.log(newReceta)
     if (!newReceta?.err) {
       res.json(newReceta);
     } else {

@@ -2,7 +2,7 @@ import { PacienteModel } from "../models/paciente.js"
 
 export class PacienteController{
     static getAll=async(req,res)=>{
-        console.log("paciente get all controller")
+        // console.log("paciente get all controller")
         const pacientes=await PacienteModel.getAll()
         if(!pacientes?.err){
             res.json(pacientes)
@@ -54,7 +54,7 @@ export class PacienteController{
     static getInformacionxPaciente=async(req,res)=>{
         let idUsuario=req.params.idUsuario
         const informacion=await PacienteModel.getInformacionxPaciente(idUsuario)
-        console.log(informacion)
+        // console.log(informacion)
         if(!informacion?.err){
             res.json(informacion)
         }else{
@@ -65,7 +65,7 @@ export class PacienteController{
     static getEjerciciosxPaciente=async(req,res)=>{
         let idUsuario=req.params.idUsuario
         const ejercicios=await PacienteModel.getEjerciciosxPaciente(idUsuario)
-        console.log(ejercicios)
+        // console.log(ejercicios)
         if(!ejercicios?.err){
             res.json(ejercicios)
         }else{

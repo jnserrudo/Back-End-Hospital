@@ -91,7 +91,7 @@ export class RecetaModel {
 
   static getPatologiaToRecetaAdd = async () => {
     try {
-      console.log("get patologia to receta add model");
+      // console.log("get patologia to receta add model");
       const receta = await prisma.patologia.findMany();
       return receta;
     } catch (error) {
@@ -103,14 +103,14 @@ export class RecetaModel {
 
   static getCategoriaToRecetaAdd = async () => {
     try {
-      console.log("get CATEGORIA to receta add model");
+      // console.log("get CATEGORIA to receta add model");
       const categoria = await prisma.categoria.findMany({
         where: {
           tipo: 3,
         },
       });
 
-      console.log("CATEGORIAS TO RECETA ADD: ", categoria);
+      // console.log("CATEGORIAS TO RECETA ADD: ", categoria);
 
       return categoria;
     } catch (error) {
@@ -351,7 +351,7 @@ export class RecetaModel {
   };
 
   static addReceta = async (dataReceta) => {
-    console.log("dataReceta: ", dataReceta);
+    // console.log("dataReceta: ", dataReceta);
 
     try {
       const {
@@ -391,7 +391,7 @@ export class RecetaModel {
         },
       });
 
-      console.log("new receta agregada: ", newReceta);
+      // console.log("new receta agregada: ", newReceta);
       return newReceta;
     } catch (error) {
       return {

@@ -60,7 +60,7 @@ export class InfografiaDietaController {
   };
 
   static uploadFiles = async (req, res) => {
-    console.log(req.file);
+    // console.log(req.file);
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };

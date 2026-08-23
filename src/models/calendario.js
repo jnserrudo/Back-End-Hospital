@@ -49,14 +49,14 @@ export class CalendarioModel {
 
   static add = async (dataEvento) => {
     try {
-      console.log("🔵 [MODELO] Datos recibidos para crear evento:", dataEvento);
+      // console.log("🔵 [MODELO] Datos recibidos para crear evento:", dataEvento);
       
       // Convertir fecha a DateTime si viene solo como fecha
       const eventoData = { ...dataEvento };
       if (eventoData.fecha && typeof eventoData.fecha === 'string' && !eventoData.fecha.includes('T')) {
         // Si la fecha no tiene hora, agregar hora local (sin Z para evitar conversión UTC)
         eventoData.fecha = new Date(eventoData.fecha + 'T12:00:00');
-        console.log("🔵 [MODELO] Fecha convertida a DateTime:", eventoData.fecha);
+        // console.log("🔵 [MODELO] Fecha convertida a DateTime:", eventoData.fecha);
       } else if (eventoData.fecha) {
         eventoData.fecha = new Date(eventoData.fecha);
       }
@@ -65,7 +65,7 @@ export class CalendarioModel {
         data: eventoData,
       });
       
-      console.log("🔵 [MODELO] Evento creado en BD:", newEvento);
+      // console.log("🔵 [MODELO] Evento creado en BD:", newEvento);
       return newEvento;
     } catch (error) {
       console.error("🔴 [MODELO] Error en Prisma al crear evento:", error);
@@ -80,7 +80,7 @@ export class CalendarioModel {
       if (eventoData.fecha && typeof eventoData.fecha === 'string' && !eventoData.fecha.includes('T')) {
         // Si la fecha no tiene hora, agregar hora local (sin Z para evitar conversión UTC)
         eventoData.fecha = new Date(eventoData.fecha + 'T12:00:00');
-        console.log("🔵 [MODELO] Fecha convertida a DateTime:", eventoData.fecha);
+        // console.log("🔵 [MODELO] Fecha convertida a DateTime:", eventoData.fecha);
       } else if (eventoData.fecha) {
         eventoData.fecha = new Date(eventoData.fecha);
       }

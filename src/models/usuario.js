@@ -8,13 +8,13 @@ const prisma = new PrismaClient();
 export class UsuarioModel {
   static getAll = async () => {
     try {
-      console.log("model usuario");
+      // console.log("model usuario");
       const usuarios = await prisma.usuario.findMany({
         where: {
           habilitado: 1,
         },
       });
-      console.log("resultado de usuario en el modelo: ", usuarios);
+      // console.log("resultado de usuario en el modelo: ", usuarios);
       /* console.log(data)
         const usuarios=await data.json()
         NO ES NECESARIO CONVERTIR A JSON
@@ -28,14 +28,14 @@ export class UsuarioModel {
 
   static getRolByUser = async (user) => {
     try {
-      console.log("model usuario", user);
+      // console.log("model usuario", user);
       const rol = await prisma.usuario.findFirst({
         where: {
           usuario: user,
         },
       });
 
-      console.log(rol);
+      // console.log(rol);
       return rol?.idRol;
     } catch (error) {
       return {
@@ -46,7 +46,7 @@ export class UsuarioModel {
 
   static getAllRoles = async () => {
     try {
-      console.log("model usuario");
+      // console.log("model usuario");
       const roles = await prisma.rol.findMany();
 
       return roles;
@@ -59,7 +59,7 @@ export class UsuarioModel {
 
   static getAllRolesToEdit = async (idRol) => {
     try {
-      console.log("getAllRolesToEdit", idRol);
+      // console.log("getAllRolesToEdit", idRol);
       const roles = await prisma.rol.findMany({
         where: {
           id: {
@@ -70,7 +70,7 @@ export class UsuarioModel {
 
       return roles;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return {
         err: error,
       };
@@ -141,7 +141,7 @@ export class UsuarioModel {
         // Generar una nueva contraseña temporal
         const nuevaContrasena = crypto.randomBytes(3).toString("hex"); // Genera una contraseña corta
 
-        console.log("Nueva contraseña temporal: ", nuevaContrasena);
+        // console.log("Nueva contraseña temporal: ", nuevaContrasena);
 
         // Encriptar la nueva contraseña
         const salt = await bcrypt.genSalt(10);
@@ -162,7 +162,7 @@ export class UsuarioModel {
           nuevaContrasena
         );
 
-        console.log("emailResponse,emailResponse.statusCode: ",emailResponse,emailResponse.statusCode)
+        // console.log("emailResponse,emailResponse.statusCode: ",emailResponse,emailResponse.statusCode)
         // Verificar si el envío del correo fue exitoso
         if (emailResponse.err) {
           throw new Error("Error al enviar el correo");
@@ -173,7 +173,7 @@ export class UsuarioModel {
 
       return result;
     } catch (error) {
-      console.log("Catch del error: ",error.message)
+      // console.log("Catch del error: ",error.message)
       return { err: error.message };
     }
   };
@@ -182,7 +182,7 @@ export class UsuarioModel {
     try {
       const { idRol, idsPatologias, password, email, ...restoDataUsuario } = dataUsuario;
   
-      console.log(dataUsuario)
+      // console.log(dataUsuario)
       // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(password, 10);
   
@@ -244,11 +244,11 @@ export class UsuarioModel {
   static getJwtToken = async (usuario, password) => {
     try {
       let usuarioValidated = await this.validateUsuario(usuario, password);
-      console.log("usuarioValidated: ", usuarioValidated, usuarioValidated.id);
+      // console.log("usuarioValidated: ", usuarioValidated, usuarioValidated.id);
       if (usuarioValidated?.id > 0) {
         //usuario validado, devolver token
         let token = jwt.sign({ usuario }, process.env.JWT_SECRET || "ozuna", {
-          expiresIn: "30m",
+          expiresIn: "8h",
         });
 
         let values = {
@@ -257,12 +257,12 @@ export class UsuarioModel {
           id: usuarioValidated.id,
           blanqueado: usuarioValidated.blanqueado,
         };
-        console.log("values: ", values);
+        // console.log("values: ", values);
 
         return values;
       } else {
         //usuario no validado
-        console.log("Usuario no valido");
+        // console.log("Usuario no valido");
         return {
           err: "Usuario no valido",
         };
@@ -275,7 +275,7 @@ export class UsuarioModel {
   };
 
   static validateUsuario = async (usuario, password) => {
-    console.log("validate usuario: ", usuario, password);
+    // console.log("validate usuario: ", usuario, password);
 
     try {
       const result = await prisma.usuario.findFirst({

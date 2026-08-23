@@ -208,7 +208,7 @@ export class EjercicioModel {
           if (err) {
             console.error(`Error al eliminar el archivo antiguo: ${err}`);
           } else {
-            console.log(`Archivo antiguo eliminado: ${oldFilePath}`);
+            // console.log(`Archivo antiguo eliminado: ${oldFilePath}`);
           }
         });
       }
@@ -246,7 +246,7 @@ export class EjercicioModel {
         },
       });
 
-      console.log("newEjercicio: ", newEjercicio);
+      // console.log("newEjercicio: ", newEjercicio);
       return newEjercicio;
     } catch (error) {
       return {
@@ -257,7 +257,7 @@ export class EjercicioModel {
 
   static getPatologiaToEjercicioAdd = async () => {
     try {
-      console.log("get patologia to ejercicio add model");
+      // console.log("get patologia to ejercicio add model");
       const ejercicio = await prisma.patologia.findMany();
       return ejercicio;
     } catch (error) {
@@ -304,7 +304,7 @@ export class EjercicioModel {
 
   static getCategoriaToEjercicioAdd = async () => {
     try {
-      console.log("get categoria to ejercicio add model");
+      // console.log("get categoria to ejercicio add model");
       const categoria = await prisma.categoria.findMany({
         where: {
           tipo: 1,

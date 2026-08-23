@@ -13,7 +13,7 @@ export class InformacionController {
   static getInfoFiltro = async (req, res) => {
     
     const {idsPatologias,idsCategorias}=req.body
-    console.log(idsPatologias,idsCategorias)
+    // console.log(idsPatologias,idsCategorias)
     const informacions = await InformacionModel.getInfoFiltro(idsPatologias,idsCategorias);
 
     if (!informacions?.err) {
@@ -36,7 +36,7 @@ export class InformacionController {
   static updateInformacion = async (req, res) => {
     let id = req.params.id;
     const informacion = await InformacionModel.updateInformacion(id, req.body);
-    console.log(informacion)
+    // console.log(informacion)
     if (!informacion?.err) {
       res.json(informacion);
     } else {
@@ -46,7 +46,7 @@ export class InformacionController {
 
   static addInformacion = async (req, res) => {
     const newInformacion = await InformacionModel.addInformacion(req.body);
-    console.log(newInformacion)
+    // console.log(newInformacion)
     if (!newInformacion?.err) {
       res.json(newInformacion);
     } else {
@@ -55,7 +55,7 @@ export class InformacionController {
   };
 
   static getPatologiaToInformacionAdd = async (req, res) => {
-    console.log("controller getPatologiaToInformacionAdd");
+    // console.log("controller getPatologiaToInformacionAdd");
     const informacion = await InformacionModel.getPatologiaToInformacionAdd();
     if (!informacion?.err) {
       res.json(informacion);
@@ -75,7 +75,7 @@ export class InformacionController {
   };
 
   static getCategoriaToInformacionAdd = async (req, res) => {
-    console.log("controller getCategoriaToInformacionAdd");
+    // console.log("controller getCategoriaToInformacionAdd");
     const categoria = await InformacionModel.getCategoriaToInformacionAdd();
     if (!categoria?.err) {
       res.json(categoria);
@@ -98,16 +98,16 @@ export class InformacionController {
 
 
   static uploadVideo = async (req, res) => {
-    console.log(req.file);
+    // console.log(req.file);
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };
 
   static disable = async (req, res) => {
     const {id}=req.params
-    console.log(id)
+    // console.log(id)
     const result = await InformacionModel.disable(id);
-    console.log(result)
+    // console.log(result)
     if (!result ?.err) {
       res.json(result );
     } else {

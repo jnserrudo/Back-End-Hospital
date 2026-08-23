@@ -2,10 +2,10 @@ import { UsuarioModel } from "../models/usuario.js";
 
 export class UsuarioController {
   static getAll = async (req, res) => {
-    console.log("usuario router");
+    // console.log("usuario router");
 
     const usuarios = await UsuarioModel.getAll();
-    console.log("resultado de usuarios del controller: ", usuarios);
+    // console.log("resultado de usuarios del controller: ", usuarios);
     if (!usuarios?.err) {
       res.json(usuarios);
     } else {
@@ -18,10 +18,10 @@ export class UsuarioController {
     }
   };
   static getRolByUser = async (req, res) => {
-    console.log("usuario router");
+    // console.log("usuario router");
     const { user } = req.params;
     const usuarios = await UsuarioModel.getRolByUser(user);
-    console.log("resultado de usuarios del controller: ", usuarios);
+    // console.log("resultado de usuarios del controller: ", usuarios);
     if (!usuarios?.err) {
       res.json(usuarios);
     } else {
@@ -35,9 +35,9 @@ export class UsuarioController {
   };
 
   static getAllRoles = async (req, res) => {
-    console.log("usuario router");
+    // console.log("usuario router");
     const roles = await UsuarioModel.getAllRoles();
-    console.log("resultado de usuarios del controller: ");
+    // console.log("resultado de usuarios del controller: ");
     if (!roles?.err) {
       res.json(roles);
     } else {
@@ -48,10 +48,10 @@ export class UsuarioController {
   };
 
   static getAllRolesToEdit = async (req, res) => {
-    console.log("usuario router");
+    // console.log("usuario router");
     const { idRol } = req.params;
     const roles = await UsuarioModel.getAllRolesToEdit(idRol);
-    console.log("resultado de usuarios del controller: ");
+    // console.log("resultado de usuarios del controller: ");
     if (!roles?.err) {
       res.json(roles);
     } else {
@@ -74,7 +74,7 @@ export class UsuarioController {
   static updateUsuario = async (req, res) => {
     let id = req.params.id;
     const usuario = await UsuarioModel.updateUsuario(id, req.body);
-    console.log(usuario)
+    // console.log(usuario)
     if (!usuario?.err) {
       res.json(usuario);
     } else {
@@ -85,7 +85,7 @@ export class UsuarioController {
   static blanquearUsuario = async (req, res) => {
     let id = req.params.id;
     const usuario = await UsuarioModel.blanquearUsuario(id);
-    console.log("CONTROLLER blanquearUsuario: ",usuario)
+    // console.log("CONTROLLER blanquearUsuario: ",usuario)
     if (!usuario?.err) {
       res.json(usuario);
     } else {
@@ -111,7 +111,7 @@ export class UsuarioController {
 
   static addUsuario = async (req, res) => {
     const newUsuario = await UsuarioModel.addUsuario(req.body);
-    console.log(newUsuario)
+    // console.log(newUsuario)
     if (!newUsuario?.err) {
       res.json(newUsuario);
     } else {
@@ -121,10 +121,10 @@ export class UsuarioController {
 
   static getJwtToken = async (req, res) => {
     const { usuario, password } = req.body;
-    console.log("controller jwt");
+    // console.log("controller jwt");
     const jwtToken = await UsuarioModel.getJwtToken(usuario, password);
     if (!jwtToken?.err) {
-      console.log("resultado de jwt token:", jwtToken);
+      // console.log("resultado de jwt token:", jwtToken);
       res.json(jwtToken);
     } else {
       res.json({ error: "No se pudo obtener el jwt token" }).status(404);
@@ -134,7 +134,7 @@ export class UsuarioController {
   static disable = async (req, res) => {
     const {id}=req.params
     const result = await UsuarioModel.disable(id);
-    console.log(result)
+    // console.log(result)
     if (!result ?.err) {
       res.json(result );
     } else {

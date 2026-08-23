@@ -87,13 +87,13 @@ export const sendPasswordResetEmail = async (email, nuevaContrasena) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('info de enviar mail: ', info)
+    // console.log('info de enviar mail: ', info)
     if (info.rejected.length > 0) {
-      console.log('Emails rejected: ' + info.rejected.join(', '));
+      // console.log('Emails rejected: ' + info.rejected.join(', '));
       throw new Error('Se rechazo el envio');
 
     } else {
-      console.log('Email sent: ' + info.response);
+      // console.log('Email sent: ' + info.response);
     }
     return info;
   } catch (error) {
@@ -168,9 +168,9 @@ export const sendAutoevaluacionEmail = async (profesionalEmail, pacienteNombre, 
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('info de enviar mail autoevaluacion: ', info);
+    // console.log('info de enviar mail autoevaluacion: ', info);
     if (info.rejected.length > 0) {
-      console.log('Emails rejected: ' + info.rejected.join(', '));
+      // console.log('Emails rejected: ' + info.rejected.join(', '));
       throw new Error('Se rechazó el envío');
     }
     return info;

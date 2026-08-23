@@ -31,12 +31,12 @@ export class CalendarioController {
   };
 
   static add = async (req, res) => {
-    console.log("📅 [CALENDARIO] Intentando crear evento:", req.body);
+    // console.log("📅 [CALENDARIO] Intentando crear evento:", req.body);
     
     const newEvento = await CalendarioModel.add(req.body);
     
     if (!newEvento?.err) {
-      console.log("✅ [CALENDARIO] Evento creado exitosamente:", newEvento);
+      // console.log("✅ [CALENDARIO] Evento creado exitosamente:", newEvento);
       res.status(201).json(newEvento);
     } else {
       console.error("❌ [CALENDARIO] Error al crear evento:", newEvento.err);
@@ -50,12 +50,12 @@ export class CalendarioController {
 
   static update = async (req, res) => {
     const { id } = req.params;
-    console.log(`📅 [CALENDARIO] Intentando actualizar evento ID ${id}:`, req.body);
+    // console.log(`📅 [CALENDARIO] Intentando actualizar evento ID ${id}:`, req.body);
     
     const evento = await CalendarioModel.update(id, req.body);
     
     if (!evento?.err) {
-      console.log("✅ [CALENDARIO] Evento actualizado exitosamente:", evento);
+      // console.log("✅ [CALENDARIO] Evento actualizado exitosamente:", evento);
       res.json(evento);
     } else {
       console.error("❌ [CALENDARIO] Error al actualizar evento:", evento.err);
@@ -68,12 +68,12 @@ export class CalendarioController {
 
   static disable = async (req, res) => {
     const { id } = req.params;
-    console.log(`📅 [CALENDARIO] Intentando inhabilitar evento ID ${id}`);
+    // console.log(`📅 [CALENDARIO] Intentando inhabilitar evento ID ${id}`);
     
     const result = await CalendarioModel.disable(id);
     
     if (!result?.err) {
-      console.log("✅ [CALENDARIO] Evento inhabilitado exitosamente:", result);
+      // console.log("✅ [CALENDARIO] Evento inhabilitado exitosamente:", result);
       res.json(result);
     } else {
       console.error("❌ [CALENDARIO] Error al inhabilitar evento:", result.err);

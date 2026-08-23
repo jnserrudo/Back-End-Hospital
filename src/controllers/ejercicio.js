@@ -14,7 +14,7 @@ export class EjercicioController {
   static getEjercicioFiltro = async (req, res) => {
     
     const {idsPatologias,idsCategorias}=req.body
-    console.log(idsPatologias,idsCategorias)
+    // console.log(idsPatologias,idsCategorias)
     const ejercicios = await EjercicioModel.getEjercicioFiltro(idsPatologias,idsCategorias);
 
     if (!ejercicios?.err) {
@@ -47,7 +47,7 @@ export class EjercicioController {
 
   static addEjercicio = async (req, res) => {
     const newEjercicio = await EjercicioModel.addEjercicio(req.body);
-    console.log(newEjercicio)
+    // console.log(newEjercicio)
     if (!newEjercicio?.err) {
       res.json(newEjercicio);
     } else {
@@ -56,7 +56,7 @@ export class EjercicioController {
   };
 
   static getPatologiaToEjercicioAdd = async (req, res) => {
-    console.log("controller getPatologiaToEjercicioAdd");
+    // console.log("controller getPatologiaToEjercicioAdd");
     const ejercicio = await EjercicioModel.getPatologiaToEjercicioAdd();
     if (!ejercicio?.err) {
       res.json(ejercicio);
@@ -76,7 +76,7 @@ export class EjercicioController {
   };
 
   static getCategoriaToEjercicioAdd = async (req, res) => {
-    console.log("controller getCategoriaToEjercicioAdd");
+    // console.log("controller getCategoriaToEjercicioAdd");
     const ejercicio = await EjercicioModel.getCategoriaToEjercicioAdd();
     if (!ejercicio?.err) {
       res.json(ejercicio);
@@ -96,16 +96,16 @@ export class EjercicioController {
   };
 
   static uploadVideo = async (req, res) => {
-    console.log(req.file);
+    // console.log(req.file);
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };
 
   static disable = async (req, res) => {
     const {id}=req.params
-    console.log("req.params",req.params,id)
+    // console.log("req.params",req.params,id)
     const result = await EjercicioModel.disable(id);
-    console.log(result)
+    // console.log(result)
     if (!result ?.err) {
       res.json(result );
     } else {

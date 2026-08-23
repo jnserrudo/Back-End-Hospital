@@ -44,7 +44,7 @@ export class PacienteModel {
 
   static getPacientebyId = async (id) => {
     try {
-      console.log(id);
+      // console.log(id);
       const paciente = await prisma.paciente.findFirst({
         where: {
           id: +id,
@@ -69,7 +69,7 @@ export class PacienteModel {
 
   static HabilitarPaciente = async (pacienteId, usuarioId, motivo) => {
     try {
-      console.log(pacienteId, usuarioId, motivo);
+      // console.log(pacienteId, usuarioId, motivo);
       const paciente = await prisma.paciente.update({
         where: {
           id: +pacienteId,
@@ -89,10 +89,10 @@ export class PacienteModel {
         },
       });
 
-      console.log("historial: ", historial);
+      // console.log("historial: ", historial);
       return paciente;
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       return {
         err: error,
       };
@@ -101,7 +101,7 @@ export class PacienteModel {
 
   static DeshabilitarPaciente = async (pacienteId, usuarioId, motivo) => {
     try {
-      console.log(pacienteId, usuarioId, motivo);
+      // console.log(pacienteId, usuarioId, motivo);
 
       const paciente = await prisma.paciente.update({
         where: {
@@ -121,11 +121,11 @@ export class PacienteModel {
           pacienteId:+pacienteId,
         },
       });
-      console.log("historial: ", historial);
+      // console.log("historial: ", historial);
 
       return paciente;
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       return {
         err: error,
       };

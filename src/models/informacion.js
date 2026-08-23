@@ -79,7 +79,7 @@ export class InformacionModel {
         },
       });
   
-      console.log("informacion filtro",informacion)
+      // console.log("informacion filtro",informacion)
 
       // Mapeamos las informaciones para obtener las categorías asociadas
       const infoConcategorias = await Promise.all(
@@ -210,7 +210,7 @@ export class InformacionModel {
           if (err) {
             console.error(`Error al eliminar el archivo antiguo: ${err}`);
           } else {
-            console.log(`Archivo antiguo eliminado: ${oldFilePath}`);
+            // console.log(`Archivo antiguo eliminado: ${oldFilePath}`);
           }
         });
       }
@@ -227,7 +227,7 @@ export class InformacionModel {
     try {
       const { idsPatologias, idsCategorias, ...informacionData } =
         dataInformacion;
-      console.log(dataInformacion);
+      // console.log(dataInformacion);
       const newInformacion = await prisma.informacion.create({
         data: {
           ...informacionData,
@@ -250,7 +250,7 @@ export class InformacionModel {
         },
       });
 
-      console.log("newInformacion: ", newInformacion);
+      // console.log("newInformacion: ", newInformacion);
       return newInformacion;
     } catch (error) {
       return {
@@ -261,7 +261,7 @@ export class InformacionModel {
 
   static getPatologiaToInformacionAdd = async () => {
     try {
-      console.log("get patologia to informacion add model");
+      // console.log("get patologia to informacion add model");
       const informacion = await prisma.patologia.findMany();
       return informacion;
     } catch (error) {
@@ -308,7 +308,7 @@ export class InformacionModel {
 
   static getCategoriaToInformacionAdd = async () => {
     try {
-      console.log("get categoria to informacion add model");
+      // console.log("get categoria to informacion add model");
       const categoria = await prisma.categoria.findMany({
         where: {
           tipo: 2,
