@@ -41,7 +41,10 @@ const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
     "http://172.19.32.1:3000",
     "http://172.20.64.1:3000",
     "http://195.200.0.39",
-    "https://195.200.0.39"
+    "https://195.200.0.39",
+    // Temporal (DuckDNS) hasta tener dominio definitivo
+    "http://onativia.duckdns.org",
+    "https://onativia.duckdns.org",
   ]);
 
 app.use(
