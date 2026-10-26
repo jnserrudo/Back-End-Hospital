@@ -1,104 +1,63 @@
-import { PacienteModel } from "../models/paciente.js"
+import { PacienteModel } from "../models/paciente.js";
+import { EjercicioModel } from "../models/ejercicio.js";
+import { InformacionModel } from "../models/informacion.js";
+import { handle, AppError } from "../utils/http.js";
+import { personalizar } from "../utils/contenido.js";
+import { ROLES } from "../middlewares/auth.js";
 
-export class PacienteController{
-    static getAll=async(req,res)=>{
-        // console.log("paciente get all controller")
-        const pacientes=await PacienteModel.getAll()
-        if(!pacientes?.err){
-            res.json(pacientes)
-        }else{
-            res.json({message:"Pacientes no encontrados"}).status(404)
-        }
+// Para un paciente, siempre usamos su propia cuenta; el personal puede consultar cualquiera.
+const resolverUsuarioObjetivo = async (req) => {
+  if (req.user.rol === ROLES.PACIENTE) return req.user;
+  const p = await PacienteModel.getPacienteByUsuario(req.params.idUsuario);
+  return { rol: ROLES.PACIENTE, pacienteId: p.id };
+};
+
+const contenidoDe = async (Model, user) => {
+  const items = await Model.getAll();
+  if (items?.err) throw items.err;
+  return personalizar({ user }, items);
+};
+
+export class PacienteController {
+  static getAll = handle("No pudimos cargar la lista de pacientes", async (req, res) => {
+    res.json(await PacienteModel.getAll());
+  });
+
+  static getPacientebyId = handle("No pudimos cargar los datos del paciente", async (req, res) => {
+    const p = await PacienteModel.getPacientebyId(req.params.id);
+    if (req.user.rol === ROLES.PACIENTE && req.user.pacienteId !== p.id) {
+      throw new AppError(403, "Solo podés ver tus propios datos.", "SIN_PERMISO");
     }
+    res.json(p);
+  });
 
-    static getPacientebyDni=async(req,res)=>{
-        let dni=req.params.dni
-        const paciente=await PacienteModel.getPacientebyDni(dni)
-        if(!paciente?.err){
-            res.json(paciente)
-        }else{
-            res.json({message:"Paciente no encontrado"}).status(404)
-        }
-    }
+  static HabilitarPaciente = handle("No pudimos habilitar al paciente", async (req, res) => {
+    const { pacienteId, motivo } = req.body || {};
+    res.json(await PacienteModel.cambiarHabilitacion(pacienteId, req.user.id, motivo, true));
+  });
 
-    static getPacientebyId=async(req,res)=>{
-        let id=req.params.id
-        const paciente=await PacienteModel.getPacientebyId(id)
-        if(!paciente?.err){
-            res.json(paciente)
-        }else{
-            res.json({message:"Paciente no encontrado"}).status(404)
-        }
-    }
+  static DeshabilitarPaciente = handle("No pudimos deshabilitar al paciente", async (req, res) => {
+    const { pacienteId, motivo } = req.body || {};
+    res.json(await PacienteModel.cambiarHabilitacion(pacienteId, req.user.id, motivo, false));
+  });
 
-    static HabilitarPaciente=async(req,res)=>{
-        let {pacienteId, usuarioId, motivo}=req.body
-        const paciente=await PacienteModel.HabilitarPaciente(pacienteId, usuarioId, motivo)
-        if(!paciente?.err){
-            res.json(paciente)
-        }else{
-            res.json({message:"Paciente no encontrado"}).status(404)
-        }
-    }
+  static getInformacionxPaciente = handle("No pudimos cargar la información del paciente", async (req, res) => {
+    res.json(await contenidoDe(InformacionModel, await resolverUsuarioObjetivo(req)));
+  });
 
-    static DeshabilitarPaciente=async(req,res)=>{
-        let {pacienteId, usuarioId, motivo}=req.body
-        const paciente=await PacienteModel.DeshabilitarPaciente(pacienteId, usuarioId, motivo)
-        if(!paciente?.err){
-            res.json(paciente)
-        }else{
-            res.json({message:"Paciente no encontrado"}).status(404)
-        }
-    }
+  static getEjerciciosxPaciente = handle("No pudimos cargar los ejercicios del paciente", async (req, res) => {
+    res.json(await contenidoDe(EjercicioModel, await resolverUsuarioObjetivo(req)));
+  });
 
-    static getInformacionxPaciente=async(req,res)=>{
-        let idUsuario=req.params.idUsuario
-        const informacion=await PacienteModel.getInformacionxPaciente(idUsuario)
-        // console.log(informacion)
-        if(!informacion?.err){
-            res.json(informacion)
-        }else{
-            res.json({message:"Informaciones no encontradas"}).status(404)
-        }
-    }
+  static updatePaciente = handle("No pudimos guardar los cambios del paciente", async (req, res) => {
+    res.json(await PacienteModel.updatePaciente(req.params.id, req.body, req.user));
+  });
 
-    static getEjerciciosxPaciente=async(req,res)=>{
-        let idUsuario=req.params.idUsuario
-        const ejercicios=await PacienteModel.getEjerciciosxPaciente(idUsuario)
-        // console.log(ejercicios)
-        if(!ejercicios?.err){
-            res.json(ejercicios)
-        }else{
-            res.json({message:"Ejercicios no encontrados"}).status(404)
-        }
-    }
+  static addPaciente = handle("No pudimos crear el paciente", async (req, res) => {
+    res.status(201).json(await PacienteModel.addPaciente(req.body));
+  });
 
-    static updatePaciente=async(req,res)=>{
-        let dni=req.params.dni
-        const paciente=await PacienteModel.updatePaciente(dni,req.body)
-        if(!paciente?.err){
-            res.json(paciente)
-        }else{
-            res.json({message:"Paciente no encontrado"}).status(404)
-        }
-    }
-
-    static addPaciente=async(req,res)=>{
-        const newPaciente=await PacienteModel.addPaciente(req.body)
-        if(!newPaciente?.err){
-            res.json(newPaciente)
-        }else{
-            res.json({message:"Paciente no encontrado"}).status(404)
-        }
-    }
-
-    static disable = async (req, res) => {
-        const {id}=req.params
-        const result = await PacienteModel.disable(id);
-        if (!result ?.err) {
-          res.json(result );
-        } else {
-          res.json({ message: "No se pudo inhabilitar el Paciente" }).status(404);
-        }
-      };
+  static disable = handle("No pudimos deshabilitar al paciente", async (req, res) => {
+    res.json(await PacienteModel.cambiarHabilitacion(req.params.id, req.user.id, req.body?.motivo, false));
+  });
 }

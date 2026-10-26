@@ -1,3 +1,4 @@
+import { sendError } from "../utils/http.js";
 import { InfografiaDietaModel } from "../models/infografia.js";
 
 export class InfografiaDietaController {
@@ -6,7 +7,7 @@ export class InfografiaDietaController {
     if (!infografias?.err) {
       res.json(infografias);
     } else {
-      res.json({ message: "Infografías no encontradas" }).status(404);
+      sendError(res, infografias.err, "No pudimos cargar las infografías");
     }
   };
 
@@ -16,7 +17,7 @@ export class InfografiaDietaController {
     if (!infografias?.err) {
       res.json(infografias);
     } else {
-      res.json({ message: "Infografías no encontradas" }).status(404);
+      sendError(res, infografias.err, "No pudimos cargar las infografías");
     }
   };
 
@@ -26,7 +27,7 @@ export class InfografiaDietaController {
     if (!infografia?.err) {
       res.json(infografia);
     } else {
-      res.json({ message: "Infografía no encontrada" }).status(404);
+      sendError(res, infografia.err, "No pudimos cargar la infografía");
     }
   };
 
@@ -35,7 +36,7 @@ export class InfografiaDietaController {
     if (!newInfografia?.err) {
       res.json(newInfografia);
     } else {
-      res.json({ message: "Error al crear la infografía" }).status(404);
+      sendError(res, newInfografia.err, "No pudimos guardar la infografía");
     }
   };
 
@@ -45,7 +46,7 @@ export class InfografiaDietaController {
     if (!infografia?.err) {
       res.json(infografia);
     } else {
-      res.json({ message: "Infografía no encontrada" }).status(404);
+      sendError(res, infografia.err, "No pudimos guardar los cambios de la infografía");
     }
   };
 
@@ -55,12 +56,15 @@ export class InfografiaDietaController {
     if (!result?.err) {
       res.json(result);
     } else {
-      res.json({ message: "No se pudo inhabilitar la Infografía" }).status(404);
+      sendError(res, result.err, "No pudimos deshabilitar la infografía");
     }
   };
 
   static uploadFiles = async (req, res) => {
     // console.log(req.file);
+    if (!req.file) {
+      return res.status(400).json({ message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar.", err: { message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar." } });
+    }
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };

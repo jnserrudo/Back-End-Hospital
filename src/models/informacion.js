@@ -50,7 +50,7 @@ export class InformacionModel {
     }
   };
 
-  static getInfoFiltro = async (idsPatologias, idsCategorias) => {
+  static getInfoFiltro = async (idsPatologias = [], idsCategorias = []) => {
     try {
       // Filtramos por habilitado y las patologías/categorías seleccionadas
       const informacion = await prisma.informacion.findMany({
@@ -77,6 +77,7 @@ export class InformacionModel {
               : undefined,
           ].filter(Boolean), // Filtramos los undefined si no hay categorías o patologías seleccionadas
         },
+        include: { patologia: { include: { patologia: true } } },
       });
   
       // console.log("informacion filtro",informacion)

@@ -1,4 +1,14 @@
+import { sendError, AppError } from "../utils/http.js";
 import { FeedbackModel, FAQModel } from "../models/feedback.js";
+
+// Tipos de comentario que acepta el formulario (valor → texto que se guarda en el mensaje).
+const TIPOS_FEEDBACK = {
+  sugerencia: "Sugerencia",
+  consulta: "Consulta",
+  problema: "Problema",
+  felicitacion: "Felicitación",
+  otro: "Otro",
+};
 
 export class FeedbackController {
   static getAll = async (req, res) => {
@@ -6,7 +16,7 @@ export class FeedbackController {
     if (!feedbacks?.err) {
       res.json(feedbacks);
     } else {
-      res.json({ message: "Feedbacks no encontrados" }).status(404);
+      sendError(res, feedbacks.err, "No pudimos cargar las sugerencias");
     }
   };
 
@@ -16,16 +26,34 @@ export class FeedbackController {
     if (!feedback?.err) {
       res.json(feedback);
     } else {
-      res.json({ message: "Feedback no encontrado" }).status(404);
+      sendError(res, feedback.err, "No pudimos cargar la sugerencia");
     }
   };
 
   static add = async (req, res) => {
-    const newFeedback = await FeedbackModel.add(req.body);
+    const { mensaje, calificacion } = req.body || {};
+    if (!mensaje || !String(mensaje).trim()) {
+      return sendError(res, new AppError(400, "Escribí tu mensaje antes de enviarlo."), "No pudimos enviar tu mensaje");
+    }
+    // El email es opcional; si viene, tiene que ser válido para poder responder.
+    const emailTxt = String(req.body?.email || "").trim();
+    if (emailTxt && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTxt)) {
+      return sendError(res, new AppError(400, "Revisá el email: parece incompleto. Si no querés que te respondan, dejalo vacío."), "No pudimos enviar tu mensaje");
+    }
+    // Si el formulario no trae nombre, usamos el de la sesión; el usuario siempre sale del token.
+    const nombre = `${req.user.nombre || ""} ${req.user.apellido || ""}`.trim() || req.user.usuario;
+    const newFeedback = await FeedbackModel.add({
+      nombre: String(req.body?.nombre || nombre).slice(0, 180),
+      email: emailTxt.slice(0, 180),
+      usuario: req.user.usuario,
+      mensaje: String(mensaje).trim(),
+      calificacion,
+      tipo: TIPOS_FEEDBACK[String(req.body?.tipo || "").toLowerCase()] || null,
+    });
     if (!newFeedback?.err) {
-      res.json(newFeedback);
+      res.status(201).json(newFeedback);
     } else {
-      res.json({ message: "Error al crear el feedback" }).status(404);
+      sendError(res, newFeedback.err, "No pudimos enviar tu mensaje");
     }
   };
 
@@ -35,7 +63,7 @@ export class FeedbackController {
     if (!feedback?.err) {
       res.json(feedback);
     } else {
-      res.json({ message: "Error al marcar como leído" }).status(404);
+      sendError(res, feedback.err, "No pudimos marcar la sugerencia como leída");
     }
   };
 }
@@ -46,7 +74,7 @@ export class FAQController {
     if (!faqs?.err) {
       res.json(faqs);
     } else {
-      res.json({ message: "FAQs no encontradas" }).status(404);
+      sendError(res, faqs.err, "No pudimos cargar las preguntas frecuentes");
     }
   };
 
@@ -56,7 +84,7 @@ export class FAQController {
     if (!faqs?.err) {
       res.json(faqs);
     } else {
-      res.json({ message: "FAQs no encontradas" }).status(404);
+      sendError(res, faqs.err, "No pudimos cargar las preguntas frecuentes");
     }
   };
 
@@ -66,7 +94,7 @@ export class FAQController {
     if (!faq?.err) {
       res.json(faq);
     } else {
-      res.json({ message: "FAQ no encontrada" }).status(404);
+      sendError(res, faq.err, "No pudimos cargar la pregunta");
     }
   };
 
@@ -75,7 +103,7 @@ export class FAQController {
     if (!newFAQ?.err) {
       res.json(newFAQ);
     } else {
-      res.json({ message: "Error al crear la FAQ" }).status(404);
+      sendError(res, newFAQ.err, "No pudimos guardar la pregunta");
     }
   };
 
@@ -85,7 +113,7 @@ export class FAQController {
     if (!faq?.err) {
       res.json(faq);
     } else {
-      res.json({ message: "FAQ no encontrada" }).status(404);
+      sendError(res, faq.err, "No pudimos guardar los cambios de la pregunta");
     }
   };
 
@@ -95,7 +123,7 @@ export class FAQController {
     if (!result?.err) {
       res.json(result);
     } else {
-      res.json({ message: "No se pudo inhabilitar la FAQ" }).status(404);
+      sendError(res, result.err, "No pudimos deshabilitar la pregunta");
     }
   };
 }

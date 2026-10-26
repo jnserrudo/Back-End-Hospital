@@ -1,12 +1,21 @@
+import { sendError } from "../utils/http.js";
 import { CalendarioModel } from "../models/calendario.js";
+import { patologiasDelPaciente } from "../utils/contenido.js";
+
+// Un paciente ve los eventos generales y los de sus patologías; el equipo ve todos.
+const soloDelPaciente = async (req, eventos) => {
+  const ids = await patologiasDelPaciente(req.user);
+  if (ids === null || !Array.isArray(eventos)) return eventos;
+  return eventos.filter((e) => !e.patologiaId || ids.includes(e.patologiaId));
+};
 
 export class CalendarioController {
   static getAll = async (req, res) => {
     const eventos = await CalendarioModel.getAll();
     if (!eventos?.err) {
-      res.json(eventos);
+      res.json(await soloDelPaciente(req, eventos));
     } else {
-      res.json({ message: "Eventos no encontrados" }).status(404);
+      sendError(res, eventos.err, "No pudimos cargar los eventos");
     }
   };
 
@@ -14,9 +23,9 @@ export class CalendarioController {
     const { fechaInicio, fechaFin } = req.query;
     const eventos = await CalendarioModel.getByFecha(fechaInicio, fechaFin);
     if (!eventos?.err) {
-      res.json(eventos);
+      res.json(await soloDelPaciente(req, eventos));
     } else {
-      res.json({ message: "Eventos no encontrados" }).status(404);
+      sendError(res, eventos.err, "No pudimos cargar los eventos");
     }
   };
 
@@ -26,7 +35,7 @@ export class CalendarioController {
     if (!evento?.err) {
       res.json(evento);
     } else {
-      res.json({ message: "Evento no encontrado" }).status(404);
+      sendError(res, evento.err, "No pudimos cargar el evento");
     }
   };
 
@@ -39,12 +48,7 @@ export class CalendarioController {
       // console.log("✅ [CALENDARIO] Evento creado exitosamente:", newEvento);
       res.status(201).json(newEvento);
     } else {
-      console.error("❌ [CALENDARIO] Error al crear evento:", newEvento.err);
-      res.status(400).json({ 
-        error: "Error al crear el evento",
-        message: newEvento.err.message || "Error desconocido",
-        details: newEvento.err
-      });
+      sendError(res, newEvento.err, "No pudimos guardar el evento");
     }
   };
 
@@ -58,11 +62,7 @@ export class CalendarioController {
       // console.log("✅ [CALENDARIO] Evento actualizado exitosamente:", evento);
       res.json(evento);
     } else {
-      console.error("❌ [CALENDARIO] Error al actualizar evento:", evento.err);
-      res.status(404).json({ 
-        error: "Evento no encontrado",
-        message: evento.err.message || "Error desconocido"
-      });
+      sendError(res, evento.err, "No pudimos guardar los cambios del evento");
     }
   };
 
@@ -76,15 +76,14 @@ export class CalendarioController {
       // console.log("✅ [CALENDARIO] Evento inhabilitado exitosamente:", result);
       res.json(result);
     } else {
-      console.error("❌ [CALENDARIO] Error al inhabilitar evento:", result.err);
-      res.status(404).json({ 
-        error: "No se pudo inhabilitar el evento",
-        message: result.err.message || "Error desconocido"
-      });
+      sendError(res, result.err, "No pudimos deshabilitar el evento");
     }
   };
 
   static uploadFiles = async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar.", err: { message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar." } });
+    }
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };

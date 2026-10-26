@@ -24,7 +24,7 @@ export class RecetaModel {
       };
     }
   };
-  static getRecetaFiltro = async (idsPatologias, idsCategorias) => {
+  static getRecetaFiltro = async (idsPatologias = [], idsCategorias = []) => {
     try {
       // Filtrar recetas habilitadas y por patologías/categorías seleccionadas
       const recetas = await prisma.receta.findMany({
@@ -51,6 +51,7 @@ export class RecetaModel {
               : undefined,
           ].filter(Boolean), // Filtra los undefined si no hay categorías o patologías seleccionadas
         },
+        include: { patologia: { include: { patologia: true } } },
       });
 
       // Obtener las categorías asociadas a cada receta

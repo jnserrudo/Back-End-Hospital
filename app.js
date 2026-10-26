@@ -1,7 +1,9 @@
 // Importamos las dependencias
+import "dotenv/config";
 import express, { json } from "express";
 import cors from "cors";
 import { router } from "./src/routes/main.js";
+import { encabezadosSeguridad } from "./src/middlewares/seguridad.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import path from "path"; // Importa el módulo 'path'
@@ -9,19 +11,20 @@ const filename = fileURLToPath(import.meta.url);
 const dirnamex = dirname(filename);
 // console.log("filename: ", filename, "dirnamex:", dirnamex);
 // Configuración de la aplicación
+// La API no arranca sin un secreto JWT propio (antes había un valor por defecto inseguro).
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
+  console.error(
+    "\n[config] Falta JWT_SECRET en el archivo .env (o tiene menos de 16 caracteres).\n" +
+      "         Agregá una línea JWT_SECRET=<valor largo y aleatorio> y volvé a iniciar el servidor.\n"
+  );
+  process.exit(1);
+}
+
 const app = express();
 app.disable("x-powered-by");
-
-// Middleware para registrar los orígenes aceptados
-const ACCEPTED_ORIGINS = [
-  "http://localhost:8080",
-  "http://localhost:1234",
-  "http://localhost:5173",
-  "http://localhost:5175",
-  "http://moviesdea.com",
-  "http://172.27.0.1:3000",
-  "http://jnsix.com",
-];
+// Detrás de nginx (VPS): TRUST_PROXY=1 para que los límites de intentos vean la IP real de cada persona.
+if (process.env.TRUST_PROXY) app.set("trust proxy", /^\d+$/.test(process.env.TRUST_PROXY) ? +process.env.TRUST_PROXY : process.env.TRUST_PROXY);
+app.use(encabezadosSeguridad);
 
 import { PrismaClient } from "@prisma/client";
 
@@ -84,7 +87,7 @@ const front = (req, res) => {
 };
 
 // Middleware para analizar JSON
-app.use(json());
+app.use(json({ limit: "2mb" }));
 
 // Rutas de la aplicación
 
@@ -110,19 +113,42 @@ React Router maneje la navegación.
 * 
 */
 
-// Manejo de errores CORS
+// Manejo central de errores: CORS, subida de archivos, JSON inválido y errores inesperados.
+// Al cliente siempre le llega un mensaje claro; el detalle técnico queda en el log.
 app.use((err, req, res, next) => {
-  if (err) {
-    console.error(err.message);
-    res.status(403).send("No permitido por CORS");
-  } else {
-    next();
+  if (!err) return next();
+  const reply = (status, message) => res.status(status).json({ message, err: { message } });
+  if (err.message === "No permitido por CORS") {
+    console.error(`[CORS] Origen rechazado: ${req.headers.origin}`);
+    return reply(403, "Esta dirección no tiene permiso para usar la aplicación.");
   }
+  if (err.name === "MulterError") {
+    console.error("[upload]", err.code, err.message);
+    if (err.code === "LIMIT_FILE_SIZE") return reply(413, "El archivo es demasiado grande. Elegí uno más liviano e intentá de nuevo.");
+    return reply(400, "No pudimos recibir el archivo. Revisá que sea un solo archivo y volvé a intentar.");
+  }
+  if (err.message?.startsWith("Solo se permiten")) {
+    return reply(400, `${err.message}. Elegí otro archivo.`);
+  }
+  if (err.type === "entity.parse.failed") {
+    return reply(400, "Los datos enviados tienen un formato incorrecto. Actualizá la página y volvé a intentar.");
+  }
+  if (err.type === "entity.too.large") {
+    return reply(413, "Los datos enviados son demasiado grandes.");
+  }
+  console.error("[API] Error no controlado:", err);
+  return reply(500, "Ocurrió un error inesperado. Intentá de nuevo en unos minutos; si sigue pasando, avisá al administrador.");
 });
 
 // console.log(path.join(dirnamex, "uploads"));
 // Servir archivos estáticos
-app.use("/uploads", express.static(path.join(dirnamex, "src", "uploads")));
+// fallthrough: false → si el archivo no existe responde 404 (antes caía en el index.html del front con 200).
+app.use("/uploads", express.static(path.join(dirnamex, "src", "uploads"), { fallthrough: false }));
+
+app.use("/uploads", (err, req, res, next) => {
+  if (err?.status === 404 || err?.statusCode === 404) return res.status(404).json({ message: "No encontramos ese archivo." });
+  next(err);
+});
 
 const PORT = process.env.PORT ?? 1234;
 

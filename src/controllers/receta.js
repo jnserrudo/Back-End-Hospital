@@ -1,3 +1,9 @@
+import { sendError, AppError } from "../utils/http.js";
+import { PrismaClient } from "@prisma/client";
+import { ROLES } from "../middlewares/auth.js";
+
+const prisma = new PrismaClient();
+import { personalizar, sanitizarUrlVideo } from "../utils/contenido.js";
 import { RecetaModel } from "../models/receta.js";
 
 
@@ -5,9 +11,9 @@ export class RecetaController {
   static getAll = async (req, res) => {
     const recetas = await RecetaModel.getAll();
     if (!recetas?.err) {
-      res.json(recetas);
+      res.json(await personalizar(req, recetas));
     } else {
-      res.json({ message: "Recetas no encontrados" }).status(404);
+      sendError(res, recetas.err, "No pudimos cargar las recetas");
     }
   };
 
@@ -18,9 +24,9 @@ export class RecetaController {
     const recetas = await RecetaModel.getRecetaFiltro(idsPatologias,idsCategorias);
 
     if (!recetas?.err) {
-      res.json(recetas);
+      res.json(await personalizar(req, recetas));
     } else {
-      res.json({ message: "Recetas no encontradas" }).status(404);
+      sendError(res, recetas.err, "No pudimos cargar las recetas");
     }
   };
 
@@ -33,13 +39,16 @@ export class RecetaController {
         // console.log(receta)
       res.json(receta);
     } else {
-      res.json({ message: "Receta no encontrada" }).status(404);
+      sendError(res, receta.err, "No pudimos cargar la receta");
     }
   };
 
   static uploadFiles = async (req, res) => {
     // Aquí puedes manejar lógica adicional después de que Multer procese el archivo
     // console.log(req.file)
+    if (!req.file) {
+      return res.status(400).json({ message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar.", err: { message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar." } });
+    }
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };
@@ -50,7 +59,7 @@ export class RecetaController {
     if (!receta?.err) {
       res.json(receta);
     } else {
-      res.json({ message: "Patologias no encontradas" }).status(404);
+      sendError(res, receta.err, "No pudimos cargar la lista de patologías");
     }
   };
 
@@ -60,7 +69,7 @@ export class RecetaController {
     if (!categoria?.err) {
       res.json(categoria);
     } else {
-      res.json({ message: "categorias no encontradas" }).status(404);
+      sendError(res, categoria.err, "No pudimos cargar la lista de categorías");
     }
   };
 
@@ -70,7 +79,7 @@ export class RecetaController {
     if (!receta?.err) {
       res.json(receta);
     } else {
-      res.json({ message: "patologias no encontradas" }).status(404);
+      sendError(res, receta.err, "No pudimos cargar la lista de patologías");
     }
   };
 
@@ -80,7 +89,7 @@ export class RecetaController {
     if (!categoria?.err) {
       res.json(categoria);
     } else {
-      res.json({ message: "categorias no encontradas" }).status(404);
+      sendError(res, categoria.err, "No pudimos cargar la lista de categorías");
     }
   };
 
@@ -90,17 +99,29 @@ export class RecetaController {
     if (!receta?.err) {
       res.json(receta);
     } else {
-      res.json({ message: "Receta no encontrado" }).status(404);
+      sendError(res, receta.err, "No pudimos cargar las recetas");
     }
   };
 
   static getRecetabyPaciente = async (req, res) => {
-    let ndocu = req.params.ndocu;
-    const receta = await RecetaModel.getRecetabyPaciente(ndocu);
-    if (!receta?.err) {
-      res.json(receta);
-    } else {
-      res.json({ message: "Receta no encontrado" }).status(404);
+    // Un paciente siempre ve sus propias recetas; el personal puede consultar por DNI.
+    try {
+      let user = req.user;
+      if (user.rol !== ROLES.PACIENTE) {
+        const dni = +String(req.params.ndocu || "").replace(/\D/g, "");
+        const u = dni
+          ? await prisma.usuario.findFirst({ where: { dni, idRol: ROLES.PACIENTE }, include: { paciente: true } })
+          : null;
+        if (!u?.paciente) {
+          throw new AppError(404, "No encontramos un paciente con ese DNI.", "NO_ENCONTRADO");
+        }
+        user = { rol: ROLES.PACIENTE, pacienteId: u.paciente.id };
+      }
+      const recetas = await RecetaModel.getAll();
+      if (recetas?.err) throw recetas.err;
+      res.json(await personalizar({ user }, recetas));
+    } catch (error) {
+      sendError(res, error, "No pudimos cargar las recetas del paciente");
     }
   };
 
@@ -111,7 +132,7 @@ export class RecetaController {
     if (!receta?.err) {
       res.json(receta);
     } else {
-      res.json({ message: "Receta no encontrado" }).status(404);
+      sendError(res, receta.err, "No pudimos guardar los cambios de la receta");
     }
   };
 
@@ -121,17 +142,17 @@ export class RecetaController {
     if (!newReceta?.err) {
       res.json(newReceta);
     } else {
-      res.json({ message: newReceta?.err }).status(404);
+      sendError(res, newReceta.err, "No pudimos guardar la receta");
     }
   };
 
   static disable = async (req, res) => {
     const {id}=req.params
     const result = await RecetaModel.disable(id);
-    if (!result ?.err) {
+    if (!result?.err) {
       res.json(result );
     } else {
-      res.json({ message: "No se pudo inhabilitar la Receta" }).status(404);
+      sendError(res, result.err, "No pudimos deshabilitar la receta");
     }
   };
 

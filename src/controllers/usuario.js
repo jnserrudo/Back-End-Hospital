@@ -1,166 +1,83 @@
 import { UsuarioModel } from "../models/usuario.js";
+import { handle, AppError } from "../utils/http.js";
+import { ROLES } from "../middlewares/auth.js";
 
 export class UsuarioController {
-  static getAll = async (req, res) => {
-    // console.log("usuario router");
+  static getAll = handle("No pudimos cargar la lista de usuarios", async (req, res) => {
+    res.json(await UsuarioModel.getAll());
+  });
 
-    const usuarios = await UsuarioModel.getAll();
-    // console.log("resultado de usuarios del controller: ", usuarios);
-    if (!usuarios?.err) {
-      res.json(usuarios);
-    } else {
-      res
-        .json({
-          message: "No se pudo traer los Usuarios",
-          error: usuarios?.err,
-        })
-        .status(404);
-    }
-  };
-  static getRolByUser = async (req, res) => {
-    // console.log("usuario router");
+  // Solo el propio usuario (o un administrador) puede consultar el rol de una cuenta.
+  static getRolByUser = handle("No pudimos cargar tu rol", async (req, res) => {
     const { user } = req.params;
-    const usuarios = await UsuarioModel.getRolByUser(user);
-    // console.log("resultado de usuarios del controller: ", usuarios);
-    if (!usuarios?.err) {
-      res.json(usuarios);
-    } else {
-      res
-        .json({
-          message: "No se pudo traer los Usuarios",
-          error: usuarios?.err,
-        })
-        .status(404);
+    if (req.user.rol !== ROLES.ADMIN && req.user.usuario !== user) {
+      throw new AppError(403, "No tenés permiso para consultar los datos de otra cuenta.", "SIN_PERMISO");
     }
-  };
+    res.json(req.user.usuario === user ? req.user.rol : await UsuarioModel.getRolByUser(user));
+  });
 
-  static getAllRoles = async (req, res) => {
-    // console.log("usuario router");
-    const roles = await UsuarioModel.getAllRoles();
-    // console.log("resultado de usuarios del controller: ");
-    if (!roles?.err) {
-      res.json(roles);
-    } else {
-      res
-        .json({ message: "No se pudo traer los Usuarios", error: roles?.err })
-        .status(404);
+  static getAllRoles = handle("No pudimos cargar la lista de roles", async (req, res) => {
+    res.json(await UsuarioModel.getAllRoles());
+  });
+
+  static getAllRolesToEdit = handle("No pudimos cargar la lista de roles", async (req, res) => {
+    res.json(await UsuarioModel.getAllRolesToEdit(req.params.idRol));
+  });
+
+  static getUsuariobyId = handle("No pudimos cargar los datos de la cuenta", async (req, res) => {
+    const id = +req.params.id;
+    if (req.user.rol !== ROLES.ADMIN && req.user.id !== id) {
+      throw new AppError(403, "No tenés permiso para ver los datos de otra cuenta.", "SIN_PERMISO");
     }
-  };
+    res.json(await UsuarioModel.getUsuariobyId(id));
+  });
 
-  static getAllRolesToEdit = async (req, res) => {
-    // console.log("usuario router");
-    const { idRol } = req.params;
-    const roles = await UsuarioModel.getAllRolesToEdit(idRol);
-    // console.log("resultado de usuarios del controller: ");
-    if (!roles?.err) {
-      res.json(roles);
-    } else {
-      res
-        .json({ message: "No se pudo traer los roles", error: roles?.err })
-        .status(404);
+  static getMe = handle("No pudimos cargar tus datos", async (req, res) => {
+    res.json(await UsuarioModel.getUsuariobyId(req.user.id));
+  });
+
+  static updateUsuario = handle("No pudimos guardar los cambios de la cuenta", async (req, res) => {
+    res.json(await UsuarioModel.updateUsuario(req.params.id, req.body, req.user));
+  });
+
+  static blanquearUsuario = handle("No pudimos restablecer la contraseña", async (req, res) => {
+    res.json(await UsuarioModel.blanquearUsuario(req.params.id));
+  });
+
+  // Cambiar la PROPIA contraseña. El id de la URL debe coincidir con el de la sesión.
+  static updatePassword = handle("No pudimos cambiar la contraseña", async (req, res) => {
+    if (+req.params.id !== req.user.id) {
+      throw new AppError(403, "Solo podés cambiar tu propia contraseña. Para otra cuenta usá «Restablecer contraseña».", "SIN_PERMISO");
     }
-  };
+    res.json(await UsuarioModel.cambiarPasswordPropia(req.user.id, req.body || {}, req.user.scope));
+  });
 
-  static getUsuariobyId = async (req, res) => {
-    let id = req.params.id;
-    const usuario = await UsuarioModel.getUsuariobyId(id);
-    if (!usuario?.err) {
-      res.json(usuario);
-    } else {
-      res.json({ message: "Usuario no encontrado" }).status(404);
-    }
-  };
+  static addUsuario = handle("No pudimos crear la cuenta", async (req, res) => {
+    res.status(201).json(await UsuarioModel.addUsuario(req.body || {}));
+  });
 
-  static updateUsuario = async (req, res) => {
-    let id = req.params.id;
-    const usuario = await UsuarioModel.updateUsuario(id, req.body);
-    // console.log(usuario)
-    if (!usuario?.err) {
-      res.json(usuario);
-    } else {
-      res.json({ message: "Usuario no encontrado" }).status(404);
-    }
-  };
+  static getJwtToken = handle("No pudimos iniciar sesión", async (req, res) => {
+    const { usuario, password } = req.body || {};
+    res.json(await UsuarioModel.login(usuario, password));
+  });
 
-  static blanquearUsuario = async (req, res) => {
-    let id = req.params.id;
-    const usuario = await UsuarioModel.blanquearUsuario(id);
-    // console.log("CONTROLLER blanquearUsuario: ",usuario)
-    if (!usuario?.err) {
-      res.json(usuario);
-    } else {
-      res.json({ err:{message: "Error al blanquear al usuario"} }).status(404);
-    }
-  };
+  static renovarToken = handle("No pudimos renovar tu sesión", async (req, res) => {
+    res.json(await UsuarioModel.renovarToken(req.user.id));
+  });
 
-  static updatePassword = async (req, res) => {
-    let id = req.params.id;
-    let { newPassword } = req.body; // Obtener la nueva contraseña del cuerpo de la solicitud
+  static disable = handle("No pudimos deshabilitar la cuenta", async (req, res) => {
+    res.json(await UsuarioModel.setHabilitado(req.params.id, false, req.user));
+  });
 
-    if (!newPassword) {
-      return res.status(400).json({ message: "Nueva contraseña es requerida" });
-    }
+  static enable = handle("No pudimos habilitar la cuenta", async (req, res) => {
+    res.json(await UsuarioModel.setHabilitado(req.params.id, true, req.user));
+  });
 
-    const usuario = await UsuarioModel.updatePassword(id, newPassword);
-    if (!usuario?.err) {
-      res.json(usuario);
-    } else {
-      res.status(404).json({ message: "Usuario no encontrado" });
-    }
-  };
+  static getPatologiaToUsuarioEdit = handle("No pudimos cargar las patologías", async (req, res) => {
+    res.json(await UsuarioModel.getPatologiaToUsuarioEdit(req.params.id));
+  });
 
-  static addUsuario = async (req, res) => {
-    const newUsuario = await UsuarioModel.addUsuario(req.body);
-    // console.log(newUsuario)
-    if (!newUsuario?.err) {
-      res.json(newUsuario);
-    } else {
-      res.json({ err:{message: "Error al crear al usuario"} }).status(404);
-    }
-  };
-
-  static getJwtToken = async (req, res) => {
-    const { usuario, password } = req.body;
-    // console.log("controller jwt");
-    const jwtToken = await UsuarioModel.getJwtToken(usuario, password);
-    if (!jwtToken?.err) {
-      // console.log("resultado de jwt token:", jwtToken);
-      res.json(jwtToken);
-    } else {
-      res.json({ error: "No se pudo obtener el jwt token" }).status(404);
-    }
-  };
-
-  static disable = async (req, res) => {
-    const {id}=req.params
-    const result = await UsuarioModel.disable(id);
-    // console.log(result)
-    if (!result ?.err) {
-      res.json(result );
-    } else {
-      res.json({ message: "No se pudo inhabilitar el Usuario" }).status(404);
-    }
-  };
-  static getPatologiaToUsuarioEdit = async (req, res) => {
-    let id = req.params.id;
-    const patologias = await UsuarioModel.getPatologiaToUsuarioEdit(id);
-    if (!patologias?.err) {
-      res.json(patologias);
-    } else {
-      res.json({ message: "Patologias no encontradas" }).status(404);
-    }
-  };
-
-  static getProfesionales = async (req, res) => {
-    const profesionales = await UsuarioModel.getProfesionales();
-    if (!profesionales?.err) {
-      res.json(profesionales);
-    } else {
-      res.status(404).json({
-        message: "No se pudieron traer los profesionales",
-        error: profesionales?.err,
-      });
-    }
-  };
-
+  static getProfesionales = handle("No pudimos cargar la lista de profesionales", async (req, res) => {
+    res.json(await UsuarioModel.getProfesionales());
+  });
 }

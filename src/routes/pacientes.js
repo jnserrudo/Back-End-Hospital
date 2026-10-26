@@ -1,28 +1,18 @@
 import express from "express";
 import { PacienteController } from "../controllers/paciente.js";
+import { requireRole, ROLES, STAFF } from "../middlewares/auth.js";
 
+// requireAuth se aplica en routes/main.js
+export const pacienteRouter = express.Router();
+const admin = requireRole(ROLES.ADMIN);
+const staff = requireRole(...STAFF);
 
-export const pacienteRouter=express.Router()
-
-pacienteRouter.get('/', PacienteController.getAll)
-
-//pacienteRouter.get('/:dni', PacienteController.getPacientebyDni)
-
-pacienteRouter.get('/:id', PacienteController.getPacientebyId)
-
-pacienteRouter.put('/deshabilitar', PacienteController.DeshabilitarPaciente)
-
-pacienteRouter.put('/habilitar', PacienteController.HabilitarPaciente)
-
-pacienteRouter.get('/informacion/patologias/:idUsuario', PacienteController.getInformacionxPaciente)
-
-pacienteRouter.get('/ejercicios/patologias/:idUsuario', PacienteController.getEjerciciosxPaciente)
-
-
-pacienteRouter.put('/:dni', PacienteController.updatePaciente)
-
-pacienteRouter.put('/inhabilitar/:id', PacienteController.disable)
-
-
-pacienteRouter.post('/',PacienteController.addPaciente)
-
+pacienteRouter.get("/", staff, PacienteController.getAll);
+pacienteRouter.get("/informacion/patologias/:idUsuario", PacienteController.getInformacionxPaciente);
+pacienteRouter.get("/ejercicios/patologias/:idUsuario", PacienteController.getEjerciciosxPaciente);
+pacienteRouter.get("/:id", PacienteController.getPacientebyId); // personal, o el propio paciente
+pacienteRouter.put("/deshabilitar", admin, PacienteController.DeshabilitarPaciente);
+pacienteRouter.put("/habilitar", admin, PacienteController.HabilitarPaciente);
+pacienteRouter.put("/inhabilitar/:id", admin, PacienteController.disable);
+pacienteRouter.put("/:id", admin, PacienteController.updatePaciente);
+pacienteRouter.post("/", admin, PacienteController.addPaciente);

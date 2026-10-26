@@ -25,10 +25,24 @@ export class FeedbackModel {
     }
   };
 
-  static add = async (dataFeedback) => {
+  static add = async ({ nombre, email, usuario, mensaje, calificacion, tipo }) => {
     try {
+      // El modelo Feedback todavía no tiene columna de calificación: la guardamos
+      // al final del mensaje hasta que se agregue en la etapa de modelo de datos.
+      const cal = Number.isInteger(+calificacion) && +calificacion >= 1 && +calificacion <= 5 ? +calificacion : null;
+      // Igual con el tipo de comentario (sugerencia, consulta, etc.).
+      const extra = [
+        tipo ? `Tipo: ${tipo}` : null,
+        cal ? `Calificación: ${cal}/5` : null,
+        usuario ? `Usuario: ${usuario}` : null,
+      ].filter(Boolean).join(" · ");
       const newFeedback = await prisma.feedback.create({
-        data: dataFeedback,
+        data: {
+          nombre: nombre || usuario || "",
+          email: email || "",
+          mensaje: extra ? `${mensaje}\n\n— ${extra}` : mensaje,
+          leido: 0,
+        },
       });
       return newFeedback;
     } catch (error) {

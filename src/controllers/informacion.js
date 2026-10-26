@@ -1,12 +1,14 @@
+import { sendError } from "../utils/http.js";
+import { personalizar, sanitizarUrlVideo } from "../utils/contenido.js";
 import { InformacionModel } from "../models/informacion.js";
 
 export class InformacionController {
   static getAll = async (req, res) => {
     const informacions = await InformacionModel.getAll();
     if (!informacions?.err) {
-      res.json(informacions);
+      res.json(await personalizar(req, informacions));
     } else {
-      res.json({ message: "Informacions no encontrados" }).status(404);
+      sendError(res, informacions.err, "No pudimos cargar la información");
     }
   };
 
@@ -17,9 +19,9 @@ export class InformacionController {
     const informacions = await InformacionModel.getInfoFiltro(idsPatologias,idsCategorias);
 
     if (!informacions?.err) {
-      res.json(informacions);
+      res.json(await personalizar(req, informacions));
     } else {
-      res.json({ message: "Informacions no encontrados" }).status(404);
+      sendError(res, informacions.err, "No pudimos cargar la información");
     }
   };
 
@@ -29,28 +31,38 @@ export class InformacionController {
     if (!informacion?.err) {
       res.json(informacion);
     } else {
-      res.json({ message: "Informacion no encontrado" }).status(404);
+      sendError(res, informacion.err, "No pudimos cargar el contenido de información");
     }
   };
 
   static updateInformacion = async (req, res) => {
+    try {
+      sanitizarUrlVideo(req.body);
+    } catch (error) {
+      return sendError(res, error, "No pudimos guardar el video");
+    }
     let id = req.params.id;
     const informacion = await InformacionModel.updateInformacion(id, req.body);
     // console.log(informacion)
     if (!informacion?.err) {
       res.json(informacion);
     } else {
-      res.json({ message: "Informacion no encontrado" }).status(404);
+      sendError(res, informacion.err, "No pudimos guardar los cambios del contenido de información");
     }
   };
 
   static addInformacion = async (req, res) => {
+    try {
+      sanitizarUrlVideo(req.body);
+    } catch (error) {
+      return sendError(res, error, "No pudimos guardar el video");
+    }
     const newInformacion = await InformacionModel.addInformacion(req.body);
     // console.log(newInformacion)
     if (!newInformacion?.err) {
       res.json(newInformacion);
     } else {
-      res.json({ message: "No se pudo agregar la informacion" }).status(404);
+      sendError(res, newInformacion.err, "No pudimos guardar el contenido de información");
     }
   };
 
@@ -60,7 +72,7 @@ export class InformacionController {
     if (!informacion?.err) {
       res.json(informacion);
     } else {
-      res.json({ message: "Patologias no encontradas" }).status(404);
+      sendError(res, informacion.err, "No pudimos cargar la lista de patologías");
     }
   };
 
@@ -70,7 +82,7 @@ export class InformacionController {
     if (!informacion?.err) {
       res.json(informacion);
     } else {
-      res.json({ message: "Informacion no encontrado" }).status(404);
+      sendError(res, informacion.err, "No pudimos cargar la lista de patologías");
     }
   };
 
@@ -80,7 +92,7 @@ export class InformacionController {
     if (!categoria?.err) {
       res.json(categoria);
     } else {
-      res.json({ message: "Categoria no encontradas" }).status(404);
+      sendError(res, categoria.err, "No pudimos cargar la lista de categorías");
     }
   };
 
@@ -90,7 +102,7 @@ export class InformacionController {
     if (!categoria?.err) {
       res.json(categoria);
     } else {
-      res.json({ message: "Categorias no encontradas" }).status(404);
+      sendError(res, categoria.err, "No pudimos cargar la lista de categorías");
     }
   };
 
@@ -99,6 +111,9 @@ export class InformacionController {
 
   static uploadVideo = async (req, res) => {
     // console.log(req.file);
+    if (!req.file) {
+      return res.status(400).json({ message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar.", err: { message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar." } });
+    }
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };
@@ -108,10 +123,10 @@ export class InformacionController {
     // console.log(id)
     const result = await InformacionModel.disable(id);
     // console.log(result)
-    if (!result ?.err) {
+    if (!result?.err) {
       res.json(result );
     } else {
-      res.json({ message: "No se pudo inhabilitar la informacion" }).status(404);
+      sendError(res, result.err, "No pudimos deshabilitar el contenido de información");
     }
   };
 }

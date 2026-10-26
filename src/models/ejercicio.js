@@ -50,7 +50,7 @@ export class EjercicioModel {
   };
 
 
-  static getEjercicioFiltro = async (idsPatologias, idsCategorias) => {
+  static getEjercicioFiltro = async (idsPatologias = [], idsCategorias = []) => {
     try {
       // Filtramos por habilitado y las patologías/categorías seleccionadas
       const ejercicios = await prisma.ejercicio.findMany({
@@ -77,6 +77,7 @@ export class EjercicioModel {
               : undefined,
           ].filter(Boolean), // Filtramos los undefined si no hay categorías o patologías seleccionadas
         },
+        include: { patologia: { include: { patologia: true } } },
       });
   
       // Mapeamos los ejercicios para obtener las categorías asociadas

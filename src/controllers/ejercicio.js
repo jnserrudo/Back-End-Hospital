@@ -1,12 +1,14 @@
+import { sendError } from "../utils/http.js";
+import { personalizar, sanitizarUrlVideo } from "../utils/contenido.js";
 import { EjercicioModel } from "../models/ejercicio.js";
 
 export class EjercicioController {
   static getAll = async (req, res) => {
     const ejercicios = await EjercicioModel.getAll();
     if (!ejercicios?.err) {
-      res.json(ejercicios);
+      res.json(await personalizar(req, ejercicios));
     } else {
-      res.json({ message: "Ejercicios no encontrados" }).status(404);
+      sendError(res, ejercicios.err, "No pudimos cargar los ejercicios");
     }
   };
 
@@ -18,9 +20,9 @@ export class EjercicioController {
     const ejercicios = await EjercicioModel.getEjercicioFiltro(idsPatologias,idsCategorias);
 
     if (!ejercicios?.err) {
-      res.json(ejercicios);
+      res.json(await personalizar(req, ejercicios));
     } else {
-      res.json({ message: "Ejercicios no encontrados" }).status(404);
+      sendError(res, ejercicios.err, "No pudimos cargar los ejercicios");
     }
   };
 
@@ -31,27 +33,37 @@ export class EjercicioController {
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Ejercicio no encontrado" }).status(404);
+      sendError(res, ejercicio.err, "No pudimos cargar el ejercicio");
     }
   };
 
   static updateEjercicio = async (req, res) => {
+    try {
+      sanitizarUrlVideo(req.body);
+    } catch (error) {
+      return sendError(res, error, "No pudimos guardar el video");
+    }
     let id = req.params.id;
     const ejercicio = await EjercicioModel.updateEjercicio(id, req.body);
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Ejercicio no encontrado" }).status(404);
+      sendError(res, ejercicio.err, "No pudimos guardar los cambios del ejercicio");
     }
   };
 
   static addEjercicio = async (req, res) => {
+    try {
+      sanitizarUrlVideo(req.body);
+    } catch (error) {
+      return sendError(res, error, "No pudimos guardar el video");
+    }
     const newEjercicio = await EjercicioModel.addEjercicio(req.body);
     // console.log(newEjercicio)
     if (!newEjercicio?.err) {
       res.json(newEjercicio);
     } else {
-      res.json({ message: "Ejercicio no encontrado" }).status(404);
+      sendError(res, newEjercicio.err, "No pudimos guardar el ejercicio");
     }
   };
 
@@ -61,7 +73,7 @@ export class EjercicioController {
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Patologias no encontradas" }).status(404);
+      sendError(res, ejercicio.err, "No pudimos cargar la lista de patologías");
     }
   };
 
@@ -71,7 +83,7 @@ export class EjercicioController {
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Patologias no encontrado" }).status(404);
+      sendError(res, ejercicio.err, "No pudimos cargar la lista de patologías");
     }
   };
 
@@ -81,7 +93,7 @@ export class EjercicioController {
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Categorias no encontradas" }).status(404);
+      sendError(res, ejercicio.err, "No pudimos cargar la lista de categorías");
     }
   };
 
@@ -91,12 +103,15 @@ export class EjercicioController {
     if (!ejercicio?.err) {
       res.json(ejercicio);
     } else {
-      res.json({ message: "Categorias no encontrado" }).status(404);
+      sendError(res, ejercicio.err, "No pudimos cargar la lista de categorías");
     }
   };
 
   static uploadVideo = async (req, res) => {
     // console.log(req.file);
+    if (!req.file) {
+      return res.status(400).json({ message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar.", err: { message: "No recibimos ningún archivo. Elegí un archivo y volvé a intentar." } });
+    }
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
   };
@@ -106,10 +121,10 @@ export class EjercicioController {
     // console.log("req.params",req.params,id)
     const result = await EjercicioModel.disable(id);
     // console.log(result)
-    if (!result ?.err) {
+    if (!result?.err) {
       res.json(result );
     } else {
-      res.json({ message: "No se pudo inhabilitar el ejercicio" }).status(404);
+      sendError(res, result.err, "No pudimos deshabilitar el ejercicio");
     }
   };
 }
